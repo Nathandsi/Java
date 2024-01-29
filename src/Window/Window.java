@@ -1,6 +1,8 @@
 package Window;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -9,6 +11,8 @@ import java.awt.event.WindowListener;
 import javax.swing.JFrame;
 
 public class Window extends JFrame implements ActionListener, WindowListener{
+	
+	private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();   //  Get screen size as Dimension object.
 	
 	private boolean isFullWindow;
 	private boolean isDecorated;
@@ -24,6 +28,28 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		setBackgroundColor(backColor);
 		setDecorated(isDecorated);
 		
+		checkSize();
+		defineCloseOperation();
+		
+		
+	}
+	
+	private void checkSize() {
+		if (isFullWindow) {
+			setSize(screenSize);
+		} else {
+			setSize(new Dimension(w,h));
+		}
+	}
+	
+	private void defineCloseOperation() {
+		switch (closeOperation) {
+		case "DISPOSE_ON_CLOSE", "dispose_on_close", "dispose" -> setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		case "DO_NOTHING_ON_CLOSE", "do_nothing_on_close", "nothing" -> setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		case "EXIT_ON_CLOSE", "exit_on_close", "exit" -> setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		case "HIDE_ON_CLOSE", "hide_on_close", "hide" -> setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		default -> setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		}
 	}
 	
 	private boolean isFullWindow() {
