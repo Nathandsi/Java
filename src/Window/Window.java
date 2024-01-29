@@ -9,29 +9,42 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 import javax.swing.JFrame;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 public class Window extends JFrame implements ActionListener, WindowListener{
 	
+	private static final long serialVersionUID = 1L;
+
 	private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();   //  Get screen size as Dimension object.
 	
-	private boolean isFullWindow;
-	private boolean isDecorated;
-	private int h;
-	private int w;
+	private boolean isFullWindow;  // should have fullscreen or not
+	private boolean isUnDecorated;  //  should have (close, resize, reduce button) -> false / or should not -> true (will remove those buttons)
+	private int h;  // height
+	private int w; // weight
 	private Color backgroundColor;
-	private String closeOperation;
+	private String closeOperation;  //  string that represents the state of the closing operation, useful for the defineCloseOperation() methode.
 	
-	public Window(boolean isFullWindow, int w, int h, Color backColor, boolean isDecorated, String closeOperation) {
+	public Window(boolean isFullWindow, int w, int h, Color backColor, boolean isUnDecorated, String closeOperation) {
+		
+		//   -----   Try to apply Look and Feel   -----
+		try {UIManager.setLookAndFeel(new NimbusLookAndFeel());} catch (UnsupportedLookAndFeelException e) {
+			System.out.println("Unsupported Look and Feel");
+			e.printStackTrace();
+		}
+		
 		setFullWindow(isFullWindow);
-		setWeight(w);
-		setHeight(h);
+		setW(w);
+		setH(h);
 		setBackgroundColor(backColor);
-		setDecorated(isDecorated);
+		setUnDecorated(isUnDecorated);
+		setCloseOperation(closeOperation);
 		
 		checkSize();
 		defineCloseOperation();
 		
-		
+		System.out.println(getCloseOperation());
 	}
 	
 	private void checkSize() {
@@ -60,19 +73,20 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		this.isFullWindow = isFullWindow;
 	}
 
-	private boolean isDecorated() {
-		return isDecorated;
+	private boolean isUnDecorated() {
+		return isUnDecorated;
 	}
 
-	private void setDecorated(boolean isDecorated) {
-		this.isDecorated = isDecorated;
+	private void setUnDecorated(boolean isUnDecorated) {
+		this.isUnDecorated = isUnDecorated;
+		setUndecorated(isUnDecorated);
 	}
 	
 	private int getH() {
 		return h;
 	}
 
-	private void setHeight(int h) {
+	private void setH(int h) {
 		this.h = h;
 	}
 
@@ -80,7 +94,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		return w;
 	}
 
-	private void setWeight(int w) {
+	private void setW(int w) {
 		this.w = w;
 	}
 
