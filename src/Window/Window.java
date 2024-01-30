@@ -1,5 +1,5 @@
 package Window;
-
+// Imports
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -10,7 +10,6 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -22,48 +21,42 @@ import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
-
+// Class
 public class Window extends JFrame implements ActionListener, WindowListener{
-	
+	// Properties
 	private static final long serialVersionUID = 1L;
-
 	private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();   //  Get screen size as Dimension object.
 	private JToolBar toolBar;
 	private ImageIcon icon;
-	
 	private boolean isFullWindow;  // should have fullscreen or not
 	private boolean isUnDecorated;  //  should have (close, resize, reduce button) -> false / or should not -> true (will remove those buttons)
 	private int h;  // height
 	private int w; // weight
 	private Color backgroundColor;
 	private String closeOperation;  //  string that represents the state of the closing operation, useful for the defineCloseOperation() methode.
-	
+	// Constructor
 	public Window(boolean isFullWindow, int w, int h, Color backColor, boolean isUnDecorated, String closeOperation) {
-		
 		//   -----   Try to apply Look and Feel   -----
 		try {UIManager.setLookAndFeel(new NimbusLookAndFeel());} catch (UnsupportedLookAndFeelException e) {
 			System.out.println("Unsupported Look and Feel");
 			e.printStackTrace();
 		}
-		
+		// sets properties
 		setFullWindow(isFullWindow);
 		setW(w);
 		setH(h);
 		setBackgroundColor(backColor);
 		setUnDecorated(isUnDecorated);
 		setCloseOperation(closeOperation);
-		
 		checkSize();
 		defineCloseOperation();
-		
+		// Defines contentPane
 		JPanel contentPane = (JPanel)this.getContentPane();
 		contentPane.setLayout(new BorderLayout());
 		this.setJMenuBar(createJMenuBar());
-		
-		
-		System.out.println(getCloseOperation());
 	}
-	
+	// Methodes
+	// Resize
 	private void checkSize() {
 		if (isFullWindow) {
 			setSize(screenSize);
@@ -71,7 +64,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 			setSize(new Dimension(w,h));
 		}
 	}
-	
+	// Window closing behaviour
 	private void defineCloseOperation() {
 		switch (closeOperation) {
 		case "DISPOSE_ON_CLOSE", "dispose_on_close", "dispose" -> setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -81,22 +74,15 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		default -> setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		}
 	}
-	
-	
+	// MenuBar creation
 	private JMenuBar createJMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
-		
 		menuBar.add(createMenuFile());
 		menuBar.add(createMenuEdit());
 		menuBar.add(createMenuTheme());
-		
-		
-		
-		
 		return menuBar;
 	}
-	
-	
+	// Creates File menu
 	private JMenu createMenuFile() {
 		JMenu menuFile = new JMenu("File");
 		icon = new ImageIcon("src/Images/Icons/icon-new.png");  
@@ -113,7 +99,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		menuFile.add(menuClose);
 		return menuFile;
 	}
-	
+	// Creates Edit menu
 	private JMenu createMenuEdit() {
 		JMenu menuEdit = new JMenu("Edit");
 		JMenuItem menuModif = new JMenuItem("Modifier");
@@ -124,7 +110,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		menuEdit.add(menuMove);
 		return menuEdit;
 	}
-	
+	// Creates Theme menu
 	private JMenu createMenuTheme() {
 		JMenu menuTheme = new JMenu("Theme");
 		JMenuItem menuColor = new JMenuItem("Color");
@@ -138,42 +124,32 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		menuTheme.add(menuStyle);
 		return menuTheme;
 	}
-	
+	//Menu listeners
 	private void menuNewListener(ActionEvent e) {
 		JOptionPane.showMessageDialog(this, "New document will be created");
 	}
-	
 	private void menuOpenListener(ActionEvent e) {
 		JOptionPane.showMessageDialog(this, "The user will choose to open a file from a list");
 	}
-	
 	private void menuCloseListener(ActionEvent e) {
 		int reponse = JOptionPane.showConfirmDialog(this, "Quitter ?","Quitter l'application", 2);
 		if (reponse == 0) {System.exit(0);}
 	}
-	
 	private void menuModifListener(ActionEvent e) {
 		JOptionPane.showMessageDialog(this, "The user will choose an element to modify from a list");
 	}
-	
 	private void menuMoveListener(ActionEvent e) {
 		JOptionPane.showMessageDialog(this, "The user will choose an element to move from a list");
 	}
-	
-	
 	private void menuZoomListener(ActionEvent e) {
 		JOptionPane.showMessageDialog(this, "The user will be able to zoom in or out");
 	}
-	
 	private void menuColorListener(ActionEvent e) {
 		JOptionPane.showMessageDialog(this, "The user will be able to change the color of the theme");
 	}
-	
 	private void menuStyleListener(ActionEvent e) {
 		JOptionPane.showMessageDialog(this, "The user will be able to change the style of the theme");
 	}
-	
-	
 	// toolBar creation
 	/*
 	private JToolBar createToolBar(String nameToolBar, int hauteur, int largeur) {
@@ -187,9 +163,6 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		return toolBar;
 	}
 	*/
-	
-	
-	
 	private boolean isFullWindow() {
 		return isFullWindow;
 	}
@@ -237,54 +210,32 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 
 	private void setCloseOperation(String closeOperation) {
 		this.closeOperation = closeOperation;
-	}
-
-	@Override
+	}	@Override
 	public void windowOpened(WindowEvent e) {
 		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
+	}	@Override
 	public void windowClosing(WindowEvent e) {
 		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
+	}	@Override
 	public void windowClosed(WindowEvent e) {
 		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
+	}	@Override
 	public void windowIconified(WindowEvent e) {
 		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
+	}	@Override
 	public void windowDeiconified(WindowEvent e) {
 		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
+	}	@Override
 	public void windowActivated(WindowEvent e) {
 		// TODO Auto-generated method stub
-		
 	}
-
 	@Override
 	public void windowDeactivated(WindowEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		
 	}
-
 }
