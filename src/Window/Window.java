@@ -8,7 +8,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -26,6 +29,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 
 	private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();   //  Get screen size as Dimension object.
 	private JToolBar toolBar;
+	private ImageIcon icon;
 	
 	private boolean isFullWindow;  // should have fullscreen or not
 	private boolean isUnDecorated;  //  should have (close, resize, reduce button) -> false / or should not -> true (will remove those buttons)
@@ -86,18 +90,25 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		menuBar.add(createMenuEdit());
 		menuBar.add(createMenuTheme());
 		
+		
+		
+		
 		return menuBar;
 	}
 	
+	
 	private JMenu createMenuFile() {
 		JMenu menuFile = new JMenu("File");
-		JMenuItem menuNew = new JMenuItem("New");
+		icon = new ImageIcon("src/Images/Icons/icon-new.png");  
+		JMenuItem menuNew = new JMenuItem("New", icon);
 		menuNew.addActionListener(this::menuNewListener);
 		menuFile.add(menuNew);
-		JMenuItem menuOpen = new JMenuItem("Open");
+		icon = new ImageIcon("src/Images/Icons/icon-open.png"); 
+		JMenuItem menuOpen = new JMenuItem("Open", icon);
 		menuOpen.addActionListener(this::menuOpenListener);
 		menuFile.add(menuOpen);
-		JMenuItem menuClose = new JMenuItem("Close");
+		icon = new ImageIcon("src/Images/Icons/icon-close.png"); 
+		JMenuItem menuClose = new JMenuItem("Close", icon);
 		menuClose.addActionListener(this::menuCloseListener);
 		menuFile.add(menuClose);
 		return menuFile;
