@@ -8,8 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -18,9 +18,12 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.JTree;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+import javax.swing.tree.DefaultMutableTreeNode;
+
 // Class
 public class Window extends JFrame implements ActionListener, WindowListener{
 	// Properties
@@ -34,6 +37,8 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 	private int w; // weight
 	private Color backgroundColor;
 	private String closeOperation;  //  string that represents the state of the closing operation, useful for the defineCloseOperation() methode.
+	private String rootPath = "C:\\Users\\ndurand\\eclipse-workspace\\JavaTraining\\src\\UserFiles";
+	private File rootFile = new File("NameFile", rootPath);
 	// Constructor
 	public Window(boolean isFullWindow, int w, int h, Color backColor, boolean isUnDecorated, String closeOperation) {
 		//   -----   Try to apply Look and Feel   -----
@@ -41,7 +46,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 			System.out.println("Unsupported Look and Feel");
 			e.printStackTrace();
 		}
-		// sets properties
+		// Sets properties
 		setFullWindow(isFullWindow);
 		setW(w);
 		setH(h);
@@ -54,6 +59,9 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		JPanel contentPane = (JPanel)this.getContentPane();
 		contentPane.setLayout(new BorderLayout());
 		this.setJMenuBar(createJMenuBar());
+		// JTree creation
+		createJTreeMenu();
+		System.out.println(rootPath.toString());
 	}
 	// Methodes
 	// Resize
@@ -85,14 +93,22 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 	// Creates File menu
 	private JMenu createMenuFile() {
 		JMenu menuFile = new JMenu("File");
+		// New
 		icon = new ImageIcon("src/Images/Icons/icon-new.png");  
 		JMenuItem menuNew = new JMenuItem("New", icon);
 		menuNew.addActionListener(this::menuNewListener);
 		menuFile.add(menuNew);
+		// Open
 		icon = new ImageIcon("src/Images/Icons/icon-open.png"); 
 		JMenuItem menuOpen = new JMenuItem("Open", icon);
 		menuOpen.addActionListener(this::menuOpenListener);
 		menuFile.add(menuOpen);
+		// Save
+		icon = new ImageIcon("src/Images/Icons/icon-save.png");  
+		JMenuItem menuSave = new JMenuItem("Save", icon);
+		menuSave.addActionListener(this::menuSaveListener);
+		menuFile.add(menuSave);
+		// Close
 		icon = new ImageIcon("src/Images/Icons/icon-close.png"); 
 		JMenuItem menuClose = new JMenuItem("Close", icon);
 		menuClose.addActionListener(this::menuCloseListener);
@@ -102,10 +118,14 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 	// Creates Edit menu
 	private JMenu createMenuEdit() {
 		JMenu menuEdit = new JMenu("Edit");
-		JMenuItem menuModif = new JMenuItem("Modifier");
+		// Modify
+		icon = new ImageIcon("src/Images/Icons/icon-edit.png");
+		JMenuItem menuModif = new JMenuItem("Modifier", icon);
 		menuModif.addActionListener(this::menuModifListener);
 		menuEdit.add(menuModif);
-		JMenuItem menuMove = new JMenuItem("Déplacer");
+		// Move
+		icon = new ImageIcon("src/Images/Icons/icon-move.png");
+		JMenuItem menuMove = new JMenuItem("Déplacer", icon);
 		menuMove.addActionListener(this::menuMoveListener);
 		menuEdit.add(menuMove);
 		return menuEdit;
@@ -113,23 +133,58 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 	// Creates Theme menu
 	private JMenu createMenuTheme() {
 		JMenu menuTheme = new JMenu("Theme");
-		JMenuItem menuColor = new JMenuItem("Color");
+		//Color
+		icon = new ImageIcon("src/Images/Icons/icon-color.png"); 
+		JMenuItem menuColor = new JMenuItem("Color", icon);
 		menuColor.addActionListener(this::menuColorListener);
 		menuTheme.add(menuColor);
-		JMenuItem menuZoom = new JMenuItem("Zoom");
+		// Zoom
+		icon = new ImageIcon("src/Images/Icons/icon-zoom.png"); 
+		JMenuItem menuZoom = new JMenuItem("Zoom", icon);
 		menuZoom.addActionListener(this::menuZoomListener);
 		menuTheme.add(menuZoom);
-		JMenuItem menuStyle = new JMenuItem("Style");
+		// Style
+		icon = new ImageIcon("src/Images/Icons/icon-style-add.png"); 
+		JMenuItem menuStyle = new JMenuItem("Style", icon);
 		menuStyle.addActionListener(this::menuStyleListener);
 		menuTheme.add(menuStyle);
 		return menuTheme;
 	}
+	private JTree createJTreeMenu() {
+		DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode();
+		
+		
+		
+		return new JTree();
+	}
+	
+	private void listDir(File source) {
+		File[] listFiles = rootFile.listFiles();
+		
+		ArrayList<File> tabFiles = new ArrayList<>();
+
+		
+		for (File element : listFiles) {
+			
+			if (element.isDirectory()) {
+			//	System.out.println("Nom du dossier : " + element.getName() + " : est le dossier numéro " + i);
+				listDir(element);
+			} else {
+				
+			//	System.out.println("Nom du fichier : " + element.getName() + " : est le fichier numéro " + j);
+			}
+		}
+	}
+	
 	//Menu listeners
 	private void menuNewListener(ActionEvent e) {
 		JOptionPane.showMessageDialog(this, "New document will be created");
 	}
 	private void menuOpenListener(ActionEvent e) {
 		JOptionPane.showMessageDialog(this, "The user will choose to open a file from a list");
+	}
+	private void menuSaveListener(ActionEvent e) {
+		JOptionPane.showMessageDialog(this, "Save the document");
 	}
 	private void menuCloseListener(ActionEvent e) {
 		int reponse = JOptionPane.showConfirmDialog(this, "Quitter ?","Quitter l'application", 2);
