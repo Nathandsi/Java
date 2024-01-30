@@ -1,5 +1,6 @@
 package Window;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -9,6 +10,12 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
@@ -18,6 +25,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 	private static final long serialVersionUID = 1L;
 
 	private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();   //  Get screen size as Dimension object.
+	private JToolBar toolBar;
 	
 	private boolean isFullWindow;  // should have fullscreen or not
 	private boolean isUnDecorated;  //  should have (close, resize, reduce button) -> false / or should not -> true (will remove those buttons)
@@ -44,6 +52,11 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		checkSize();
 		defineCloseOperation();
 		
+		JPanel contentPane = (JPanel)this.getContentPane();
+		contentPane.setLayout(new BorderLayout());
+		this.setJMenuBar(createJMenuBar());
+		
+		
 		System.out.println(getCloseOperation());
 	}
 	
@@ -64,6 +77,107 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		default -> setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		}
 	}
+	
+	
+	private JMenuBar createJMenuBar() {
+		JMenuBar menuBar = new JMenuBar();
+		
+		menuBar.add(createMenuFile());
+		menuBar.add(createMenuEdit());
+		menuBar.add(createMenuTheme());
+		
+		return menuBar;
+	}
+	
+	private JMenu createMenuFile() {
+		JMenu menuFile = new JMenu("File");
+		JMenuItem menuNew = new JMenuItem("New");
+		menuNew.addActionListener(this::menuNewListener);
+		menuFile.add(menuNew);
+		JMenuItem menuOpen = new JMenuItem("Open");
+		menuOpen.addActionListener(this::menuOpenListener);
+		menuFile.add(menuOpen);
+		JMenuItem menuClose = new JMenuItem("Close");
+		menuClose.addActionListener(this::menuCloseListener);
+		menuFile.add(menuClose);
+		return menuFile;
+	}
+	
+	private JMenu createMenuEdit() {
+		JMenu menuEdit = new JMenu("Edit");
+		JMenuItem menuModif = new JMenuItem("Modifier");
+		menuModif.addActionListener(this::menuModifListener);
+		menuEdit.add(menuModif);
+		JMenuItem menuMove = new JMenuItem("Déplacer");
+		menuMove.addActionListener(this::menuMoveListener);
+		menuEdit.add(menuMove);
+		return menuEdit;
+	}
+	
+	private JMenu createMenuTheme() {
+		JMenu menuTheme = new JMenu("Theme");
+		JMenuItem menuColor = new JMenuItem("Color");
+		menuColor.addActionListener(this::menuColorListener);
+		menuTheme.add(menuColor);
+		JMenuItem menuZoom = new JMenuItem("Zoom");
+		menuZoom.addActionListener(this::menuZoomListener);
+		menuTheme.add(menuZoom);
+		JMenuItem menuStyle = new JMenuItem("Style");
+		menuStyle.addActionListener(this::menuStyleListener);
+		menuTheme.add(menuStyle);
+		return menuTheme;
+	}
+	
+	private void menuNewListener(ActionEvent e) {
+		JOptionPane.showMessageDialog(this, "New document will be created");
+	}
+	
+	private void menuOpenListener(ActionEvent e) {
+		JOptionPane.showMessageDialog(this, "The user will choose to open a file from a list");
+	}
+	
+	private void menuCloseListener(ActionEvent e) {
+		int reponse = JOptionPane.showConfirmDialog(this, "Quitter ?","Quitter l'application", 2);
+		if (reponse == 0) {System.exit(0);}
+	}
+	
+	private void menuModifListener(ActionEvent e) {
+		JOptionPane.showMessageDialog(this, "The user will choose an element to modify from a list");
+	}
+	
+	private void menuMoveListener(ActionEvent e) {
+		JOptionPane.showMessageDialog(this, "The user will choose an element to move from a list");
+	}
+	
+	
+	private void menuZoomListener(ActionEvent e) {
+		JOptionPane.showMessageDialog(this, "The user will be able to zoom in or out");
+	}
+	
+	private void menuColorListener(ActionEvent e) {
+		JOptionPane.showMessageDialog(this, "The user will be able to change the color of the theme");
+	}
+	
+	private void menuStyleListener(ActionEvent e) {
+		JOptionPane.showMessageDialog(this, "The user will be able to change the style of the theme");
+	}
+	
+	
+	// toolBar creation
+	/*
+	private JToolBar createToolBar(String nameToolBar, int hauteur, int largeur) {
+		JToolBar toolBar = new JToolBar();
+		toolBar.setName(nameToolBar);
+		toolBar.setSize(largeur, hauteur);
+		
+		JButton btnNew = new JButton(new ImageIcon("icons/new.png"));
+		toolBar.add(btnNew);
+		
+		return toolBar;
+	}
+	*/
+	
+	
 	
 	private boolean isFullWindow() {
 		return isFullWindow;

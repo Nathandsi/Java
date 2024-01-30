@@ -11,7 +11,7 @@ public class StartApplication {
 
 	public static void main(String[] args) {
 		//  Window(boolean isFullWindow, int w, int h, Color backColor, boolean isUnDecorated, String closeOperation)
-		Window firstWindow = new Window(true, 600, 400, backgroundColor, true, "exit");
+		Window firstWindow = new Window(true, 600, 400, backgroundColor, false, "exit");
 		firstWindow.setVisible(true);
 		System.out.println("First window created");
 	}
