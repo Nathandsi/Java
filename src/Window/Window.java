@@ -38,7 +38,10 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 	private Color backgroundColor;
 	private String closeOperation;  //  string that represents the state of the closing operation, useful for the defineCloseOperation() methode.
 	private String rootPath = "C:\\Users\\ndurand\\eclipse-workspace\\JavaTraining\\src\\UserFiles";
-	private File rootFile = new File("NameFile", rootPath);
+	private File rootFile = new File(rootPath);
+	private ArrayList<File> arrayFile = new ArrayList<File>();
+	private ArrayList<String> nameFiles = new ArrayList<>();
+	private ArrayList<String> pathFiles = new ArrayList<>();
 	// Constructor
 	public Window(boolean isFullWindow, int w, int h, Color backColor, boolean isUnDecorated, String closeOperation) {
 		//   -----   Try to apply Look and Feel   -----
@@ -60,8 +63,9 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		contentPane.setLayout(new BorderLayout());
 		this.setJMenuBar(createJMenuBar());
 		// JTree creation
-		createJTreeMenu();
-		System.out.println(rootPath.toString());
+		
+		
+		listDirectory(rootFile.listFiles());
 	}
 	// Methodes
 	// Resize
@@ -90,7 +94,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		menuBar.add(createMenuTheme());
 		return menuBar;
 	}
-	// Creates File menu
+	// File Menu
 	private JMenu createMenuFile() {
 		JMenu menuFile = new JMenu("File");
 		// New
@@ -115,7 +119,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		menuFile.add(menuClose);
 		return menuFile;
 	}
-	// Creates Edit menu
+	// Edit menu
 	private JMenu createMenuEdit() {
 		JMenu menuEdit = new JMenu("Edit");
 		// Modify
@@ -130,7 +134,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		menuEdit.add(menuMove);
 		return menuEdit;
 	}
-	// Creates Theme menu
+	// Theme menu
 	private JMenu createMenuTheme() {
 		JMenu menuTheme = new JMenu("Theme");
 		//Color
@@ -150,6 +154,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		menuTheme.add(menuStyle);
 		return menuTheme;
 	}
+	// Creation of JTree from UserFiles
 	private JTree createJTreeMenu() {
 		DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode();
 		
@@ -158,23 +163,24 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		return new JTree();
 	}
 	
-	private void listDir(File source) {
-		File[] listFiles = rootFile.listFiles();
+	private void listDirectory(File[] source) {
 		
-		ArrayList<File> tabFiles = new ArrayList<>();
-
-		
-		for (File element : listFiles) {
-			
+		for (File element : source) {
+			arrayFile.add(element);
 			if (element.isDirectory()) {
-			//	System.out.println("Nom du dossier : " + element.getName() + " : est le dossier numéro " + i);
-				listDir(element);
-			} else {
-				
-			//	System.out.println("Nom du fichier : " + element.getName() + " : est le fichier numéro " + j);
+				listDirectory(listDir(element));
 			}
 		}
+		// .filter(element -> element.isDirectory() == true)  arrayFile.stream() .filter(element -> element.isDirectory() == true).map(element -> element.getName()).forEach(System.out::println);
+		arrayFile.stream() .filter(element -> element.isDirectory() == true).map(element -> element.getName()).forEach(System.out::println);
+		
 	}
+	
+	private File[] listDir(File dossier) {
+		File[] contenuDossier = dossier.listFiles();
+		return contenuDossier;
+	}
+	
 	
 	//Menu listeners
 	private void menuNewListener(ActionEvent e) {
