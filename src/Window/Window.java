@@ -65,7 +65,13 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		// JTree creation
 		
 		
-		listDirectory(rootFile.listFiles());
+//		listDirectory(rootFile.listFiles());
+//		
+//		arrayFile.stream().map(element -> element.getAbsolutePath()).forEach(System.out::println);
+//		
+		
+		CustomDirectory customDir = new CustomDirectory(rootPath, true);
+		customDir.list();
 	}
 	// Methodes
 	// Resize
@@ -165,21 +171,39 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 	
 	private void listDirectory(File[] source) {
 		
-		for (File element : source) {
-			arrayFile.add(element);
-			if (element.isDirectory()) {
-				listDirectory(listDir(element));
+//		for (File element : source) {
+//			arrayFile.add(element);
+//			if (element.isDirectory()) {
+//				listDirectory(listDir(element));
+//			}
+//		}
+//		// .filter(element -> element.isDirectory() == true)  arrayFile.stream() .filter(element -> element.isDirectory() == true).map(element -> element.getName()).forEach(System.out::println);
+//		arrayFile.stream() .filter(element -> element.isDirectory() == true).map(element -> element.getName()).forEach(System.out::println);
+		
+		
+		addFileToArray(source);  // On ajoute les éléments de base du dossier source au tableau d'éléments
+		
+		for (File element : source) {   // pour chaque élément, 
+			if (element.isDirectory()) {  // si c'est un dossier
+				addFileToArray(listDir(element));  // on récupère la liste de son contenu et on l'ajoute au tableau d'éléments.
 			}
 		}
-		// .filter(element -> element.isDirectory() == true)  arrayFile.stream() .filter(element -> element.isDirectory() == true).map(element -> element.getName()).forEach(System.out::println);
-		arrayFile.stream() .filter(element -> element.isDirectory() == true).map(element -> element.getName()).forEach(System.out::println);
-		
 	}
 	
 	private File[] listDir(File dossier) {
 		File[] contenuDossier = dossier.listFiles();
 		return contenuDossier;
 	}
+	
+	private void addFileToArray(File[] source) {
+		for (File element : source) {
+			arrayFile.add(element);
+		}
+	}
+	
+//	private int nbrInDir(File dossier) {
+//		
+//	}
 	
 	
 	//Menu listeners
