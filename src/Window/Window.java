@@ -70,7 +70,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 //		arrayFile.stream().map(element -> element.getAbsolutePath()).forEach(System.out::println);
 //		
 		
-		CustomDirectory customDir = new CustomDirectory(rootPath, true);
+		CustomDirectory customDir = new CustomDirectory(rootFile, true);
 		customDir.list();
 	}
 	// Methodes
