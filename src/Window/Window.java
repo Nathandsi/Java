@@ -10,6 +10,8 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.stream.Stream;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -36,12 +38,16 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 	private int h;  // height
 	private int w; // weight
 	private Color backgroundColor;
-	private String closeOperation;  //  string that represents the state of the closing operation, useful for the defineCloseOperation() methode.
+	private String closeOperation;  //  string that represents the state of the closing operation, useful for the defineCloseOperation() method.
 	private String rootPath = "C:\\Users\\ndurand\\eclipse-workspace\\JavaTraining\\src\\UserFiles";
 	private File rootFile = new File(rootPath);
-	private ArrayList<File> arrayFile = new ArrayList<File>();
+	public ArrayList<File> arrayFile = new ArrayList<File>();
 	private ArrayList<String> nameFiles = new ArrayList<>();
 	private ArrayList<String> pathFiles = new ArrayList<>();
+	
+	// private JComboBox<String> selectionList = new JComboBox<String>();
+	
+	
 	// Constructor
 	public Window(boolean isFullWindow, int w, int h, Color backColor, boolean isUnDecorated, String closeOperation) {
 		//   -----   Try to apply Look and Feel   -----
@@ -61,6 +67,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		// Defines contentPane
 		JPanel contentPane = (JPanel)this.getContentPane();
 		contentPane.setLayout(new BorderLayout());
+		// MenuBar creation
 		this.setJMenuBar(createJMenuBar());
 		// JTree creation
 		
@@ -69,9 +76,13 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 //		
 //		arrayFile.stream().map(element -> element.getAbsolutePath()).forEach(System.out::println);
 //		
-		
+		// CustomDirectory creation, from the source folder (rootFile), with recursivity set to "true"
 		CustomDirectory customDir = new CustomDirectory(rootFile, true);
-		customDir.list();
+		// Invoking the "listD()" method that lists all the elements from the folder
+		customDir.listD();
+		// Invoking the "showFile()" method that return an ArrayList, streamed and mapped to only keep the name, then println each line (that represents an element)
+		customDir.showFiles().stream().map(element -> element.getName()).forEach(System.out::println);
+		
 	}
 	// Methodes
 	// Resize
@@ -164,51 +175,13 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 	private JTree createJTreeMenu() {
 		DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode();
 		
-		
-		
 		return new JTree();
 	}
-	
-	private void listDirectory(File[] source) {
-		
-//		for (File element : source) {
-//			arrayFile.add(element);
-//			if (element.isDirectory()) {
-//				listDirectory(listDir(element));
-//			}
-//		}
-//		// .filter(element -> element.isDirectory() == true)  arrayFile.stream() .filter(element -> element.isDirectory() == true).map(element -> element.getName()).forEach(System.out::println);
-//		arrayFile.stream() .filter(element -> element.isDirectory() == true).map(element -> element.getName()).forEach(System.out::println);
-		
-		
-		addFileToArray(source);  // On ajoute les éléments de base du dossier source au tableau d'éléments
-		
-		for (File element : source) {   // pour chaque élément, 
-			if (element.isDirectory()) {  // si c'est un dossier
-				addFileToArray(listDir(element));  // on récupère la liste de son contenu et on l'ajoute au tableau d'éléments.
-			}
-		}
-	}
-	
-	private File[] listDir(File dossier) {
-		File[] contenuDossier = dossier.listFiles();
-		return contenuDossier;
-	}
-	
-	private void addFileToArray(File[] source) {
-		for (File element : source) {
-			arrayFile.add(element);
-		}
-	}
-	
-//	private int nbrInDir(File dossier) {
-//		
-//	}
-	
 	
 	//Menu listeners
 	private void menuNewListener(ActionEvent e) {
 		JOptionPane.showMessageDialog(this, "New document will be created");
+		
 	}
 	private void menuOpenListener(ActionEvent e) {
 		JOptionPane.showMessageDialog(this, "The user will choose to open a file from a list");
@@ -248,6 +221,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		return toolBar;
 	}
 	*/
+	
 	private boolean isFullWindow() {
 		return isFullWindow;
 	}
@@ -295,7 +269,9 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 
 	private void setCloseOperation(String closeOperation) {
 		this.closeOperation = closeOperation;
-	}	@Override
+	}	
+	
+	@Override
 	public void windowOpened(WindowEvent e) {
 		// TODO Auto-generated method stub
 	}	@Override
