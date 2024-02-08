@@ -6,6 +6,8 @@ import Window.Window;
 
 public class StartApplication {
 	
+	public Window firstWindow;
+	
 	// Background color of the Window
 	private static Color backgroundColor = new Color( 18,32,56);
 

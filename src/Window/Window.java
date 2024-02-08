@@ -9,8 +9,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.stream.Stream;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -45,6 +45,10 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 	private ArrayList<String> nameFiles = new ArrayList<>();
 	private ArrayList<String> pathFiles = new ArrayList<>();
 	
+	private DefaultMutableTreeNode tempNode;
+	private ArrayList<DefaultMutableTreeNode> arrayNodes = new ArrayList<DefaultMutableTreeNode>();
+	private ArrayList<DefaultMutableTreeNode> tempNodeList = new ArrayList<DefaultMutableTreeNode>();
+	
 	// private JComboBox<String> selectionList = new JComboBox<String>();
 	
 	
@@ -73,17 +77,72 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		
 		
 //		listDirectory(rootFile.listFiles());
-//		
 //		arrayFile.stream().map(element -> element.getAbsolutePath()).forEach(System.out::println);
-//		
-		// CustomDirectory creation, from the source folder (rootFile), with recursivity set to "true"
-		CustomDirectory customDir = new CustomDirectory(rootFile, true);
-		// Invoking the "listD()" method that lists all the elements from the folder
-		customDir.listD();
-		// Invoking the "showFile()" method that return an ArrayList, streamed and mapped to only keep the name, then println each line (that represents an element)
-		customDir.showFiles().stream().map(element -> element.getName()).forEach(System.out::println);
+		
+		if (rootFile.list() != null) {
+			// CustomDirectory creation, from the source folder (rootFile), with recursivity set to "true"
+			CustomDirectory customDir = new CustomDirectory(rootFile, true);
+			// Invoking the "listD()" method from the "CustomDirectory" class that lists all the elements from the folder
+			customDir.listD();
+			// Invoking the "showFile()" method that return an ArrayList, streamed and mapped to only keep the name, then println each line (that represents an element)
+			customDir.showFiles().stream().map(element -> element.getName()).forEach(System.out::println);
+			
+//			customDir.showFiles().stream().map(element -> element.getName()).forEach(DefaultMutableTreeNode::new);
+			customDir.showFiles().stream().forEach((element) -> {
+				if (element.isDirectory()) {
+					
+				}
+				arrayNodes.add(convertFileToNode(element));
+				});
+			
+			
+		}
+
+		
+
+	
+
 		
 	}
+	
+	private ArrayList<DefaultMutableTreeNode> getNodesFromDir(File file) {
+    ArrayList<DefaultMutableTreeNode> nodeList = new ArrayList<DefaultMutableTreeNode>();
+		if (!file.isDirectory()) {
+			return null;
+		} else {
+			File[] listFiles = file.listFiles();
+			for (File f : listFiles) {
+				tempNode = convertFileToNode(f);
+//				NodeInfo nodeObject = (NodeInfo) tempNode.getUserObject();
+				nodeList.add(tempNode);
+			}
+			return nodeList;
+		}
+	}
+	
+	private int checkNbrDir(File file) {
+		int nbr = 0;
+		File[] tabFile = file.listFiles();
+		for (File f : tabFile) {
+			if (f.isDirectory()) {nbr += 1;}
+		}
+		return nbr;
+	}
+	
+	
+	private DefaultMutableTreeNode convertFileToNode(File file) {
+		if (file.isDirectory()) {
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(file.getName(), (String) file.getPath(), true));
+			return node;
+		} else {
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(file.getName(), (String) file.getPath(), false));
+			return node;
+		}
+	}
+	
+	
+	
+	
 	// Methodes
 	// Resize
 	private void checkSize() {
