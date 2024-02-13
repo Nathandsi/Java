@@ -74,7 +74,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		// MenuBar creation
 		this.setJMenuBar(createJMenuBar());
 		// JTree creation
-		
+
 		
 //		listDirectory(rootFile.listFiles());
 //		arrayFile.stream().map(element -> element.getAbsolutePath()).forEach(System.out::println);
@@ -83,22 +83,26 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 			// CustomDirectory creation, from the source folder (rootFile), with recursivity set to "true"
 			CustomDirectory customDir = new CustomDirectory(rootFile, true);
 			// Invoking the "listD()" method from the "CustomDirectory" class that lists all the elements from the folder
-			customDir.listD();
+			customDir.listD(customDir);
 			// Invoking the "showFile()" method that return an ArrayList, streamed and mapped to only keep the name, then println each line (that represents an element)
-			customDir.showFiles().stream().map(element -> element.getName()).forEach(System.out::println);
+		//	customDir.showFiles().stream().map(element -> element.getName()).forEach(System.out::println);
 			
 //			customDir.showFiles().stream().map(element -> element.getName()).forEach(DefaultMutableTreeNode::new);
 			customDir.showFiles().stream().forEach((element) -> {
 				if (element.isDirectory()) {
 					
 				}
-				arrayNodes.add(convertFileToNode(element));
+			//	arrayNodes.add(convertFileToNode(element));
 				});
+			
+			customDir.showNodes().stream().map(element -> element.toString()).forEach(System.out::println);
+	//		customDir.showFiles().stream().map(element -> element.getName()).forEach(System.out::println);
 			
 			
 		}
 
-		
+//		arrayNodes = getNodesFromDir(rootFile);
+//		arrayNodes.stream().map(e -> e.toString()).forEach(System.out::println);
 
 	
 
