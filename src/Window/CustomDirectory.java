@@ -2,6 +2,8 @@ package Window;
 
 import java.io.File;
 import java.util.ArrayList;
+
+import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 public class CustomDirectory {
@@ -9,9 +11,9 @@ public class CustomDirectory {
 	private Boolean recursivePath = false;
 	public int fileCount = 0;
 	public int dirCount = 0;
+	public int fileInDir = 0;
 	public ArrayList<File> arrayFiles = new ArrayList<File>();
 	public ArrayList<DefaultMutableTreeNode> arrayNodes = new ArrayList<DefaultMutableTreeNode>();
-	NodeInfo infos;
 	
 	public CustomDirectory(File directory, Boolean subFolder) {
 		this.initialFile = directory;
@@ -32,13 +34,19 @@ public class CustomDirectory {
 				if (f.isDirectory() == true) {
 	//				System.out.println("Dossier: " + f.getAbsolutePath());
 					this.dirCount++;
-					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), (String) f.getPath(), true));
+					int nbrChild = 0;
+					File[] tabFile = f.listFiles();
+					for (File file : tabFile) {
+						nbrChild += 1;
+					}
+					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), (String) f.getPath(), true, nbrChild));
 					arrayNodes.add(tempNode);
 					arrayFiles.add(f);
 				} else {
 	//			System.out.println("  Fichier: " + f.getAbsolutePath());
 					this.fileCount++;
-					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), (String) f.getPath(), false));
+					
+					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), (String) f.getPath(), false, 0));
 					arrayNodes.add(tempNode);
 					arrayFiles.add(f);
 				}

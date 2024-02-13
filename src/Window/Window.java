@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
@@ -44,10 +43,17 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 	public ArrayList<File> arrayFile = new ArrayList<File>();
 	private ArrayList<String> nameFiles = new ArrayList<>();
 	private ArrayList<String> pathFiles = new ArrayList<>();
+	private int nbrChildInDir;
 	
 	private DefaultMutableTreeNode tempNode;
+	private DefaultMutableTreeNode rootNode;
 	private ArrayList<DefaultMutableTreeNode> arrayNodes = new ArrayList<DefaultMutableTreeNode>();
 	private ArrayList<DefaultMutableTreeNode> tempNodeList = new ArrayList<DefaultMutableTreeNode>();
+	private Tree tree = new Tree(rootNode, true);
+	private File[] tabTempFiles;
+	private int tempNbr;
+	private DefaultMutableTreeNode containerNode;
+	private ArrayList<File> tableauFiles = new ArrayList<File>();
 	
 	// private JComboBox<String> selectionList = new JComboBox<String>();
 	
@@ -59,6 +65,15 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 			System.out.println("Unsupported Look and Feel");
 			e.printStackTrace();
 		}
+		
+		// Counts the files whithin the root file (none recursive, only the root directory)
+		File[] tabTempFiles = rootFile.listFiles();
+		for (File tempFile : tabTempFiles) {
+			nbrChildInDir += 1;
+		}
+		// creates the root node 
+		rootNode = new DefaultMutableTreeNode(new NodeInfo(rootFile.getName(), rootFile.getPath(), true, nbrChildInDir));
+		
 		// Sets properties
 		setFullWindow(isFullWindow);
 		setW(w);
@@ -75,6 +90,18 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		this.setJMenuBar(createJMenuBar());
 		// JTree creation
 
+		tempNbr = rootNode.getChildCount();
+		tabTempFiles = rootFile.listFiles();
+		
+		for (File fichier : tabTempFiles) {
+			tableauFiles.add(fichier);
+			tempNodeList.add(convertFileToNode(fichier));
+		}
+		System.out.println(tempNodeList);
+		
+		
+	//	Tree tree = new Tree(containerNode, true);
+		
 		
 //		listDirectory(rootFile.listFiles());
 //		arrayFile.stream().map(element -> element.getAbsolutePath()).forEach(System.out::println);
@@ -89,10 +116,10 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 			
 //			customDir.showFiles().stream().map(element -> element.getName()).forEach(DefaultMutableTreeNode::new);
 			customDir.showFiles().stream().forEach((element) -> {
-				if (element.isDirectory()) {
-					
-				}
-			//	arrayNodes.add(convertFileToNode(element));
+				arrayFile.add(element);
+				});
+			customDir.showNodes().stream().forEach((element) -> {
+				arrayNodes.add(element);
 				});
 			
 			customDir.showNodes().stream().map(element -> element.toString()).forEach(System.out::println);
@@ -104,12 +131,14 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 //		arrayNodes = getNodesFromDir(rootFile);
 //		arrayNodes.stream().map(e -> e.toString()).forEach(System.out::println);
 
-	
-
-		
 	}
 	
-	private ArrayList<DefaultMutableTreeNode> getNodesFromDir(File file) {
+	private File[] getList(File theDir) {
+		File[] lesFichiers = theDir.listFiles();
+		return lesFichiers;
+	}
+	
+	private ArrayList<DefaultMutableTreeNode> getListNodesFromDir(File file) {
     ArrayList<DefaultMutableTreeNode> nodeList = new ArrayList<DefaultMutableTreeNode>();
 		if (!file.isDirectory()) {
 			return null;
@@ -124,7 +153,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		}
 	}
 	
-	private int checkNbrDir(File file) {
+	private int NbrDir(File file) {
 		int nbr = 0;
 		File[] tabFile = file.listFiles();
 		for (File f : tabFile) {
@@ -133,13 +162,21 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		return nbr;
 	}
 	
+	private int nbrFilesInDir(File dossier) {
+		if (!dossier.isDirectory()) {return 0;} else {tabTempFiles = dossier.listFiles();
+			for (File d : tabTempFiles) {tempNbr += 1;}
+			return tempNbr;
+		}
+	}
+	
 	
 	private DefaultMutableTreeNode convertFileToNode(File file) {
 		if (file.isDirectory()) {
-			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(file.getName(), (String) file.getPath(), true));
+			int nbrChild = nbrFilesInDir(file);
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(file.getName(), (String) file.getPath(), true, nbrChild));
 			return node;
 		} else {
-			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(file.getName(), (String) file.getPath(), false));
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(file.getName(), (String) file.getPath(), false, 0));
 			return node;
 		}
 	}
