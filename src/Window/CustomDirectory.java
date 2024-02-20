@@ -39,14 +39,19 @@ public class CustomDirectory {
 					for (File file : tabFile) {
 						nbrChild += 1;
 					}
-					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), (String) f.getPath(), true, nbrChild));
+					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), (String) f.getPath(), true, nbrChild, false));
+					arrayNodes.add(tempNode);
+					arrayFiles.add(f);
+				} else if (f.isDirectory() == true && f.listFiles() == null) {
+					this.dirCount++;
+					int nbrChild = 0;
+					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), (String) f.getPath(), true, nbrChild, true));
 					arrayNodes.add(tempNode);
 					arrayFiles.add(f);
 				} else {
 	//			System.out.println("  Fichier: " + f.getAbsolutePath());
 					this.fileCount++;
-					
-					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), (String) f.getPath(), false, 0));
+					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), (String) f.getPath(), false, 0, true));
 					arrayNodes.add(tempNode);
 					arrayFiles.add(f);
 				}

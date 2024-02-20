@@ -49,12 +49,13 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	private DefaultMutableTreeNode rootNode;
 	private ArrayList<DefaultMutableTreeNode> arrayNodes = new ArrayList<DefaultMutableTreeNode>();
 	private ArrayList<DefaultMutableTreeNode> tempNodeList = new ArrayList<DefaultMutableTreeNode>();
-	private Tree tree = new Tree(rootNode, true);
+	private JTree tree = new JTree(rootNode, true);
 	private File[] tabTempFiles;
 	private int tempNbr;
 	private DefaultMutableTreeNode containerNode;
 	private ArrayList<File> tableauFiles = new ArrayList<File>();
 	private ArrayList<File> orderedListFiles = new ArrayList<File>();
+	
 	
 	// private JComboBox<String> selectionList = new JComboBox<String>();
 	
@@ -73,7 +74,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			nbrChildInDir += 1;
 		}
 		// creates the root node 
-		rootNode = new DefaultMutableTreeNode(new NodeInfo(rootFile.getName(), rootFile.getPath(), true, nbrChildInDir));
+		rootNode = new DefaultMutableTreeNode(new NodeInfo(rootFile.getName(), rootFile.getPath(), true, nbrChildInDir, false));
 		
 		// Sets properties
 		setFullWindow(isFullWindow);
@@ -98,7 +99,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			tableauFiles.add(fichier);
 			tempNodeList.add(convertFileToNode(fichier));
 		}
-		System.out.println(tempNodeList);
+	//	System.out.println(tempNodeList);
 		
 		
 	//	Tree tree = new Tree(containerNode, true);
@@ -124,11 +125,11 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 				});
 			
 			
-	//		customDir.showNodes().stream().map(element -> element.toString()).forEach(System.out::println);
+		customDir.showNodes().stream().map(element -> element.getUserObject()).forEach(System.out::println);
 		//	customDir.showFiles().stream().map(element -> element.getParentFile().getName() + " -> " + element.getName()).forEach(System.out::println);
 			
 			
-			process(rootFile);
+		//	process(rootFile);
 			
 			
 		}
@@ -177,10 +178,10 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	private DefaultMutableTreeNode convertFileToNode(File file) {
 		if (file.isDirectory()) {
 			int nbrChild = nbrFilesInDir(file);
-			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(file.getName(), (String) file.getPath(), true, nbrChild));
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(file.getName(), (String) file.getPath(), true, nbrChild, false));
 			return node;
 		} else {
-			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(file.getName(), (String) file.getPath(), false, 0));
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(file.getName(), (String) file.getPath(), false, 0, false));
 			return node;
 		}
 	}
