@@ -26,7 +26,7 @@ import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 // Class
-public class Window extends JFrame implements ActionListener, WindowListener{
+public class Window extends JFrame implements ActionListener, WindowListener, ProcessFile{
 	// Properties
 	private static final long serialVersionUID = 1L;
 	private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();   //  Get screen size as Dimension object.
@@ -54,6 +54,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 	private int tempNbr;
 	private DefaultMutableTreeNode containerNode;
 	private ArrayList<File> tableauFiles = new ArrayList<File>();
+	private ArrayList<File> orderedListFiles = new ArrayList<File>();
 	
 	// private JComboBox<String> selectionList = new JComboBox<String>();
 	
@@ -122,8 +123,12 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 				arrayNodes.add(element);
 				});
 			
-			customDir.showNodes().stream().map(element -> element.toString()).forEach(System.out::println);
-	//		customDir.showFiles().stream().map(element -> element.getName()).forEach(System.out::println);
+			
+	//		customDir.showNodes().stream().map(element -> element.toString()).forEach(System.out::println);
+		//	customDir.showFiles().stream().map(element -> element.getParentFile().getName() + " -> " + element.getName()).forEach(System.out::println);
+			
+			
+			process(rootFile);
 			
 			
 		}
@@ -153,7 +158,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		}
 	}
 	
-	private int NbrDir(File file) {
+	private int nbrDir(File file) {
 		int nbr = 0;
 		File[] tabFile = file.listFiles();
 		for (File f : tabFile) {
@@ -169,7 +174,6 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 		}
 	}
 	
-	
 	private DefaultMutableTreeNode convertFileToNode(File file) {
 		if (file.isDirectory()) {
 			int nbrChild = nbrFilesInDir(file);
@@ -180,9 +184,6 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 			return node;
 		}
 	}
-	
-	
-	
 	
 	// Methodes
 	// Resize
@@ -274,6 +275,7 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 	// Creation of JTree from UserFiles
 	private JTree createJTreeMenu() {
 		DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode();
+		
 		
 		return new JTree();
 	}
@@ -399,4 +401,39 @@ public class Window extends JFrame implements ActionListener, WindowListener{
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 	}
+
+	@Override
+	public void process(File parent) {
+		
+		ArrayList<File> tabTempDir = new ArrayList<File>();
+		
+		//  On liste les fichiers présents dans parent, et on ajoute chaque élément dans orderedListFiles
+			File[] listWithFile = getList(parent);
+			for (File f : listWithFile) {
+				orderedListFiles.add(f);
+			}
+			
+			//  Pour chaque dossier présent dans parent, on ajoute dans tabTempDir
+			for (File f : listWithFile) {
+				if (f.isDirectory()) {
+					tabTempDir.add(f);
+				}
+			}
+			
+			//  Pour chaque élément (donc dossier) dans tabTempDir, si il n'est pas vide, on récupère la liste dans tempList
+			for (File f : tabTempDir) {
+				if (f.listFiles() != null) {
+					File[] tempList = getList(f);
+					for (File d : tempList) {
+						process(f);
+					}
+				}
+			}
+		
+		
+		orderedListFiles.stream().map(element -> element.getParentFile().getName() + " -> " + element.getName()).forEach(System.out::println);
+		
+	}
+	
+	
 }
