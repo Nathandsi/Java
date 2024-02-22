@@ -10,6 +10,9 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -74,7 +77,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			nbrChildInDir += 1;
 		}
 		// creates the root node 
-		rootNode = new DefaultMutableTreeNode(new NodeInfo(rootFile.getName(), rootFile.getPath(), true, nbrChildInDir, false));
+		rootNode = new DefaultMutableTreeNode(new NodeInfo(rootFile.getName(), rootFile.getPath(), rootFile.getParentFile().getName(), true, nbrChildInDir, false));
 		
 		// Sets properties
 		setFullWindow(isFullWindow);
@@ -114,7 +117,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			// Invoking the "listD()" method from the "CustomDirectory" class that lists all the elements from the folder
 			customDir.listD(customDir);
 			// Invoking the "showFile()" method that return an ArrayList, streamed and mapped to only keep the name, then println each line (that represents an element)
-		//	customDir.showFiles().stream().map(element -> element.getName()).forEach(System.out::println);
+		    //	 customDir.showFiles().stream().map(element -> element.getName()).forEach(System.out::println);
 			
 //			customDir.showFiles().stream().map(element -> element.getName()).forEach(DefaultMutableTreeNode::new);
 			customDir.showFiles().stream().forEach((element) -> {
@@ -125,9 +128,15 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 				});
 			
 			
-		customDir.showNodes().stream().map(element -> element.getUserObject()).forEach(System.out::println);
+	//	customDir.showNodes().stream().map(element -> element.getUserObject()).forEach(System.out::println);
+			ArrayList<Object> myList = new ArrayList<Object>();
+			customDir.showNodes().stream().map(element -> element.getUserObject()).forEach( n -> {myList.add(n);});
+		//	myList.stream().forEach(System.out::println);
 		//	customDir.showFiles().stream().map(element -> element.getParentFile().getName() + " -> " + element.getName()).forEach(System.out::println);
 			
+		//	System.out.println(arrayNodes);
+			
+			orderingNodes(arrayFile);
 			
 		//	process(rootFile);
 			
@@ -137,6 +146,25 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 //		arrayNodes = getNodesFromDir(rootFile);
 //		arrayNodes.stream().map(e -> e.toString()).forEach(System.out::println);
 
+	}
+	
+	private JTree orderingNodes(ArrayList<File> listFiles) {
+		JTree tree = new JTree();
+		File[] tabFiles = listFiles.toArray(new File[listFiles.size()]);
+		DefaultMutableTreeNode[] tabNodes;
+		for (int i = tabFiles.length - 1; i >= 0 ; i--) {
+			
+			System.out.println(tabFiles[i]);
+			
+			if (tabFiles[i].isDirectory() == true && tabFiles[i].listFiles().length == 0) {
+					System.out.println("*****" + tabFiles[i].getName());
+			}
+			
+			
+		}
+		
+		
+		return tree;
 	}
 	
 	private File[] getList(File theDir) {
@@ -178,10 +206,10 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	private DefaultMutableTreeNode convertFileToNode(File file) {
 		if (file.isDirectory()) {
 			int nbrChild = nbrFilesInDir(file);
-			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(file.getName(), (String) file.getPath(), true, nbrChild, false));
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(file.getName(), (String) file.getPath(), file.getParentFile().getName(), true, nbrChild, false));
 			return node;
 		} else {
-			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(file.getName(), (String) file.getPath(), false, 0, false));
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(file.getName(), (String) file.getPath(), file.getParentFile().getName(), false, 0, false));
 			return node;
 		}
 	}

@@ -31,33 +31,39 @@ public class CustomDirectory {
 		File[] files = initialFile.listFiles();
 		if (files != null) {
 			for (File f : files) {
+				
+				// In case of a directory that has child :
 				if (f.isDirectory() == true) {
-	//				System.out.println("Dossier: " + f.getAbsolutePath());
 					this.dirCount++;
 					int nbrChild = 0;
 					File[] tabFile = f.listFiles();
-					for (File file : tabFile) {
-						nbrChild += 1;
-					}
-					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), (String) f.getPath(), true, nbrChild, false));
+					for (File file : tabFile) { nbrChild += 1; }
+					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), (String) f.getPath(), f.getParentFile().getName(), true, nbrChild, false));
 					arrayNodes.add(tempNode);
 					arrayFiles.add(f);
+					
+				// In case of an empty directory :
 				} else if (f.isDirectory() == true && f.listFiles() == null) {
 					this.dirCount++;
-					int nbrChild = 0;
-					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), (String) f.getPath(), true, nbrChild, true));
+					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), (String) f.getPath(), f.getParentFile().getName(), true, 0, true));
 					arrayNodes.add(tempNode);
 					arrayFiles.add(f);
+					
+				// In case of a file (not a directory) : 
 				} else {
-	//			System.out.println("  Fichier: " + f.getAbsolutePath());
 					this.fileCount++;
-					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), (String) f.getPath(), false, 0, true));
+					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), (String) f.getPath(), f.getParentFile().getName(), false, 0, true));
 					arrayNodes.add(tempNode);
 					arrayFiles.add(f);
 				}
-				if (f.isDirectory() == true && this.recursivePath == true) {
-					CustomDirectory tempFile = new CustomDirectory(f, true);
-					listD(tempFile);
+				
+				// In case of a directory is not empty then we set the recusivity to true
+				if (f.isDirectory() == true && f.listFiles() != null ) {
+					this.recursivePath = true;
+					if (f.isDirectory() == true && this.recursivePath == true) {
+						CustomDirectory tempFile = new CustomDirectory(f, true);
+						listD(tempFile);
+					}
 				}
 			}
 		}
