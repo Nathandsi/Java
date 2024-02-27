@@ -58,6 +58,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	private DefaultMutableTreeNode containerNode;
 	private ArrayList<File> tableauFiles = new ArrayList<File>();
 	private ArrayList<File> orderedListFiles = new ArrayList<File>();
+	private ArrayList<ArrayList<String>> contentLevel = new ArrayList<ArrayList<String>>();
 	
 	
 	// private JComboBox<String> selectionList = new JComboBox<String>();
@@ -149,22 +150,96 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	}
 	
 	private JTree orderingNodes(ArrayList<File> listFiles) {
+		int level = 0;
 		JTree tree = new JTree();
 		File[] tabFiles = listFiles.toArray(new File[listFiles.size()]);
 		DefaultMutableTreeNode[] tabNodes;
+		File[] otherTabFiles = new File[listFiles.size()];
+		int j = 0;
 		for (int i = tabFiles.length - 1; i >= 0 ; i--) {
 			
-			System.out.println(tabFiles[i]);
+			System.out.println("i = " + i + " -> " + tabFiles[i]);
+			otherTabFiles[j] = tabFiles[i].getParentFile();
+			System.out.println("j = " + j + " -> " + otherTabFiles[j]);
+			j = j + 1;
 			
+			//  In case we found an empty directory
 			if (tabFiles[i].isDirectory() == true && tabFiles[i].listFiles().length == 0) {
-					System.out.println("*****" + tabFiles[i].getName());
+					System.out.println("***** EMPTY DIRECTORY -> " + tabFiles[i].getName());
 			}
+			if (tabFiles[i].isDirectory() == false) {
+				System.out.println("***** FILE -> " + tabFiles[i].getName());
+			}
+			
 			
 			
 		}
 		
 		
+		
+		
+		
+		
 		return tree;
+	}
+	
+	
+	public void comparePath(ArrayList<File> fileList) {
+		
+	}
+	
+	
+	public DefaultMutableTreeNode processFile(File leaf) {
+		File parent = leaf.getParentFile();
+		if (isLast(leaf)) {
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(leaf.getName(), (String) leaf.getPath(), parent.getName(), false, 0, true));
+			return node;
+		}
+		
+		
+		return null;
+
+	}
+	
+	
+	public DefaultMutableTreeNode processParent(File parent) {
+		File [] tabFiles = parent.listFiles();
+		int nbrSiblings = nbrFilesInDir(parent);
+		
+		return null;
+	}
+	
+	
+	public boolean isLast(File file) {
+		if (file.listFiles() == null && file.isDirectory() == false) {
+			return true;
+		} else { return false; }
+	}
+	
+	public void gettingLevel(File directory) {
+		// If the directory has children
+		if (getList(directory) != null){
+			// We get the list from the directory as File[], we convert it into an ArrayList<String> that represents the name of the files, and we add this ArrayList to the contentLevel.
+			ArrayList<String> tempArray = convertTabToArrayListString(getList(directory));
+			contentLevel.add(tempArray);
+		}
+	}
+	
+	public ArrayList<File> convertTabToArrayList(File[] tabFile){
+		ArrayList<File> arrayFile = new ArrayList<File>();
+		for (File f : tabFile) {
+			arrayFile.add(f);
+		}
+		return arrayFile;
+	}
+	
+	
+	public ArrayList<String> convertTabToArrayListString(File[] tabFile){
+		ArrayList<String> arrayFileString = new ArrayList<String>();
+		for (File f : tabFile) {
+			arrayFileString.add(f.getName());
+		}
+		return arrayFileString;
 	}
 	
 	private File[] getList(File theDir) {
