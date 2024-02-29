@@ -188,30 +188,112 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		
 	}
 	
+	// Returns true if the file and the node passed in param share the same name, path and parent name.
+	public boolean compareFileToNode(File file, DefaultMutableTreeNode node) {
+		NodeInfo info = (NodeInfo) node.getUserObject();
+		if (file.getName() == info.getNodeName() && (String) file.getPath() == info.getNodePath() && file.getParentFile().getName() == info.parent()) {
+			return true;
+		}
+		return false;
+	}
 	
-	public DefaultMutableTreeNode processFile(File leaf) {
-		File parent = leaf.getParentFile();
-		if (isLast(leaf)) {
-			DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(leaf.getName(), (String) leaf.getPath(), parent.getName(), false, 0, true));
-			return node;
+	public DefaultMutableTreeNode processDirChildren(File theDirectory) {
+		int nbrFiles = nbrFilesInDir(theDirectory);
+		int nbrDir = nbrDir(theDirectory);
+		
+		// The case where the directory does not contain another directory.
+		if (nbrDir == 0) {
+			File[] tabFiles = theDirectory.listFiles();
+			ArrayList<DefaultMutableTreeNode> arrayNode = new ArrayList<DefaultMutableTreeNode>();
+			for (File f : tabFiles) { arrayNode.add(createNode(f)); }
+			DefaultMutableTreeNode parentNode = createNode(theDirectory.getParentFile());
+			for (DefaultMutableTreeNode node : arrayNode) { parentNode.add(node); }
+			return parentNode;
+		// The case where there is another directory inside theDirectory passed as param.
+		} else if (nbrDir != 0) {
+			
+		}
+		
+		// for now
+		return null;
+	}
+	
+	public File exploreDirectory(File fichier, boolean recursivity) {
+		
+		File initialFile = fichier;
+		boolean recurs = recursivity;
+		
+		int nbrChild;
+		
+		File[] tabFiles = initialFile.listFiles();
+		
+		
+		
+		
+		
+		if (tabFiles != null) {
+			for (File f : tabFiles) {
+				// In case of a directory that has child :
+				if (f.isDirectory() == true) {
+					File[] tabFile = f.listFiles();
+					for (File file : tabFile) { nbrChild += 1; }
+					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), (String) f.getPath(), f.getParentFile().getName(), true, nbrChild, false));
+					arrayNodes.add(tempNode);
+					
+				// In case of an empty directory :
+				} else if (f.isDirectory() == true && f.listFiles() == null) {
+					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), (String) f.getPath(), f.getParentFile().getName(), true, 0, true));
+					arrayNodes.add(tempNode);
+					
+				// In case of a file (not a directory) : 
+				} else {
+					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), (String) f.getPath(), f.getParentFile().getName(), false, 0, true));
+					arrayNodes.add(tempNode);
+				}
+				
+				// In case of a directory is not empty then we set the recusivity to true
+				if (f.isDirectory() == true && f.listFiles() != null ) {
+					this.recursivePath = true;
+					if (f.isDirectory() == true && this.recursivePath == true) {
+						CustomDirectory tempFile = new CustomDirectory(f, true);
+						listD(tempFile);
+					}
+				}
+			}
 		}
 		
 		
-		return null;
-
+		
+		
+		
+		
+		
+		
 	}
 	
 	
-	public DefaultMutableTreeNode processParent(File parent) {
-		File [] tabFiles = parent.listFiles();
-		int nbrSiblings = nbrFilesInDir(parent);
-		
-		return null;
+	public DefaultMutableTreeNode processFileToNode(File child) {
+		// Gets the parent of the file
+		File parent = child.getParentFile();
+		// Turns it into a node
+		DefaultMutableTreeNode nodeParent = createNode(parent);
+		// Turns the File into a node
+		DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(child.getName(), (String) child.getPath(), parent.getName(), child.isDirectory(), nbrFilesInDir(child), isLast(child)));
+		// Adds the child node to the parent node
+		nodeParent.add(node);
+		// Returns the parent as a node containing the child (as a node)
+		return nodeParent;
+	}
+	
+	// 
+	public DefaultMutableTreeNode createNode(File fichier) {
+		DefaultMutableTreeNode nodeParent = new DefaultMutableTreeNode(new NodeInfo(fichier.getName(), (String) fichier.getPath(), fichier.getParentFile().getName(), fichier.isDirectory(), nbrFilesInDir(fichier), isLast(fichier)));
+		return nodeParent;
 	}
 	
 	
 	public boolean isLast(File file) {
-		if (file.listFiles() == null && file.isDirectory() == false) {
+		if (file.listFiles() == null) {
 			return true;
 		} else { return false; }
 	}
@@ -225,6 +307,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		}
 	}
 	
+	// Convert an array of File into an ArrayList<File>
 	public ArrayList<File> convertTabToArrayList(File[] tabFile){
 		ArrayList<File> arrayFile = new ArrayList<File>();
 		for (File f : tabFile) {
@@ -233,7 +316,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		return arrayFile;
 	}
 	
-	
+	// Convert an array of File into an ArrayList<String> representing only the name of the files.
 	public ArrayList<String> convertTabToArrayListString(File[] tabFile){
 		ArrayList<String> arrayFileString = new ArrayList<String>();
 		for (File f : tabFile) {

@@ -20,6 +20,14 @@ public class NodeInfo{
 		}
 	}
 	
+	public String getNodeName() {
+		return this.nodeName;
+	}
+	
+	public String getNodePath() {
+		return this.nodePath;
+	}
+	
 	public boolean isAtEnd() {
 		return this.isAtEnd;
 	}
@@ -30,6 +38,10 @@ public class NodeInfo{
 	
 	public String parent() {
 		return this.parent;
+	}
+	
+	public int getNbrChild() {
+		return this.nbrChild;
 	}
 	
 	public String toString() {
