@@ -137,7 +137,9 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			
 		//	System.out.println(arrayNodes);
 			
-			orderingNodes(arrayFile);
+// ********			orderingNodes(arrayFile);
+			
+			searchForDir(rootFile);
 			
 		//	process(rootFile);
 			
@@ -223,12 +225,9 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		File initialFile = fichier;
 		boolean recurs = recursivity;
 		
-		int nbrChild;
+		int nbrChild = 0;
 		
 		File[] tabFiles = initialFile.listFiles();
-		
-		
-		
 		
 		
 		if (tabFiles != null) {
@@ -253,22 +252,57 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 				
 				// In case of a directory is not empty then we set the recusivity to true
 				if (f.isDirectory() == true && f.listFiles() != null ) {
-					this.recursivePath = true;
-					if (f.isDirectory() == true && this.recursivePath == true) {
-						CustomDirectory tempFile = new CustomDirectory(f, true);
-						listD(tempFile);
-					}
+			//		this.recursivePath = true;
+			//		if (f.isDirectory() == true && this.recursivePath == true) {
+			//			CustomDirectory tempFile = new CustomDirectory(f, true);
+			//			listD(tempFile);
+			//		}
 				}
 			}
 		}
 		
+		return null;
 		
-		
-		
-		
-		
-		
-		
+	}
+	
+	public boolean hasSeveralDir(File dir) {
+		if (nbrDir(dir) > 1) {
+			return true;
+		}
+		return false;
+	}
+	
+	public File searchForDir(File file) {
+		int nbrDirectory = nbrDir(file);
+		System.out.println("nombre de dossiers dans " + file + " est de " + nbrDirectory);
+		// We get the directories that has at least on child.
+		File[] tabDir = getListDir(file);
+
+		System.out.println("Taille du tableau de files : " + tabDir.length );
+		System.out.println("we get the content from " + file.getName() + " and list an array with its elements");
+		if (tabDir != null) {
+			for (File f : tabDir) {
+				searchForDir(f);
+			}
+		} else {
+			System.out.println("we just found an empty array from " + file.getName() + " so this should be a file or empty directory at the end. Is it ?");
+			System.out.println("RETURN -> " + file.getName());
+			return file;
+		}
+	System.out.println("IF YOU SEE THIS IT RETURNS NULL");
+		return null;
+	}
+	
+	
+	
+	// Function that checks if the File given as param does have at least one child.
+	public boolean hasChild(File file) {
+		// In case of the File as param is not a directory, return false.
+		if (!file.isDirectory()) {return false;}
+		// Otherwise we need to check if the directory is empty or not.
+		if (isEmptyDir(file)) {return false;}
+		// In case we get to this point, it means that we are dealing with a directory that has, at least, one child.
+		return true;
 	}
 	
 	
@@ -281,19 +315,19 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(child.getName(), (String) child.getPath(), parent.getName(), child.isDirectory(), nbrFilesInDir(child), isLast(child)));
 		// Adds the child node to the parent node
 		nodeParent.add(node);
-		// Returns the parent as a node containing the child (as a node)
+		// Returns the parent as a node containing the child node.
 		return nodeParent;
 	}
 	
-	// 
+	// Creates and returns a DefaultMutableTreeNode from a File given as param.
 	public DefaultMutableTreeNode createNode(File fichier) {
-		DefaultMutableTreeNode nodeParent = new DefaultMutableTreeNode(new NodeInfo(fichier.getName(), (String) fichier.getPath(), fichier.getParentFile().getName(), fichier.isDirectory(), nbrFilesInDir(fichier), isLast(fichier)));
-		return nodeParent;
+		DefaultMutableTreeNode node = new DefaultMutableTreeNode(new NodeInfo(fichier.getName(), (String) fichier.getPath(), fichier.getParentFile().getName(), fichier.isDirectory(), nbrFilesInDir(fichier), isLast(fichier)));
+		return node;
 	}
 	
 	
 	public boolean isLast(File file) {
-		if (file.listFiles() == null) {
+		if (getList(file) == null) {
 			return true;
 		} else { return false; }
 	}
@@ -325,9 +359,38 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		return arrayFileString;
 	}
 	
-	private File[] getList(File theDir) {
+	// Convert an ArrayList<File> into an array File[]
+//		public File[] convertArrayListFileToTabFile(ArrayList<File> arrayFile){
+//			File[] tabFile;
+//			
+//			for (int i = 0; i == arrayFile.size(); i++) {
+//				tabFile[i] = arrayFile.to;
+//			}
+//			return tabFile;
+//		}
+	
+	// To get an array of File[] that represents the content of the File given as param.
+	public File[] getList(File theDir) {
 		File[] lesFichiers = theDir.listFiles();
 		return lesFichiers;
+	}
+	
+	// To check if the File given as param is an empty directory.
+	public boolean isEmptyDir(File file) {
+		if (getList(file) == null || nbrFiles(file) == 0) {
+			return true;
+		}
+		return false;
+	}
+	
+	// To get the number of files present in the File given as param.
+	public int nbrFiles(File file) {
+		int nbr = 0;
+		File[] tabFile = getList(file);
+		for (File f : tabFile) {
+			nbr = nbr +1;
+		}
+		return nbr;
 	}
 	
 	private ArrayList<DefaultMutableTreeNode> getListNodesFromDir(File file) {
@@ -345,19 +408,53 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		}
 	}
 	
-	private int nbrDir(File file) {
+	public int nbrDir(File file) {
 		int nbr = 0;
-		File[] tabFile = file.listFiles();
+		File[] tabFile = getList(file);
 		for (File f : tabFile) {
 			if (f.isDirectory()) {nbr += 1;}
 		}
 		return nbr;
 	}
 	
+	public File[] convertArrayListFileToArrayFile(ArrayList<File> arrayList) {
+		return (arrayList.toArray(new File[arrayList.size()]));
+	}
+	
+	// Gets an array of File that represents the list of the directories that are present in the File given as param.
+	public File[] getListDir(File directory) {
+		// In case we are dealing with a simple file or an empty directory.
+		if (directory.isDirectory() == false || nbrDir(directory) == 0) {return null;}
+		// Creates an array of File with the list from the File given as param.
+		File[] lesFichiers = getList(directory);
+		// Creates an empty ArrayList
+		ArrayList<File> lesDossiers = new ArrayList<File>();
+		// Adds each directory that is not empty to the ArrayList
+		for (File f : lesFichiers) {
+			if (f.isDirectory() && hasChild(f) == true) {
+				lesDossiers.add(f);
+			}
+		}
+		// Returns the ArrayList converted to an array.
+		return convertArrayListFileToArrayFile(lesDossiers);
+	}
+	
+	
 	private int nbrFilesInDir(File dossier) {
-		if (!dossier.isDirectory()) {return 0;} else {tabTempFiles = dossier.listFiles();
-			for (File d : tabTempFiles) {tempNbr += 1;}
-			return tempNbr;
+		int nbrFile = 0;
+		if (!dossier.isDirectory()) {return 0;} else {tabTempFiles = getList(dossier);
+			for (File d : tabTempFiles) {nbrFile += 1;}
+			return nbrFile;
+		}
+	}
+	
+	private int nbrDirInDir(File dossier) {
+		int nbrDir = 0;
+		// In case we are dealing with a file or an empty directory.
+		if (!dossier.isDirectory() || isEmptyDir(dossier)) {return 0;} else {
+			File[] tabDir = getList(dossier);
+			for (File f : tabDir) {nbrDir += 1;}
+			return nbrDir;
 		}
 	}
 	
