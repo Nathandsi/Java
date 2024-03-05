@@ -59,6 +59,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	private ArrayList<File> tableauFiles = new ArrayList<File>();
 	private ArrayList<File> orderedListFiles = new ArrayList<File>();
 	private ArrayList<ArrayList<String>> contentLevel = new ArrayList<ArrayList<String>>();
+	private File[] tempArrayFile;
 	
 	
 	// private JComboBox<String> selectionList = new JComboBox<String>();
@@ -139,8 +140,43 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			
 // ********			orderingNodes(arrayFile);
 			
-			searchForDir(rootFile);
+		//	searchForDir(rootFile);
 			
+			
+			ArrayList<Object> tableauDeFile = new ArrayList<Object>();
+			// Creates and fill an ArrayList<Object> with an ArrayList<File>
+			for (File f : arrayFile) {
+				tableauDeFile.add(f);
+			}
+			
+			Object[] tableauFile = convertArrayListObjectToArrayObject(tableauDeFile);
+
+			ArrayList<String> tableauDeString;
+			
+			for (Object f : tableauFile) {
+				System.out.println(((File)f).getName() + " --> " + ((File)f).getParentFile());
+				
+			}
+			
+			System.out.println(" ");
+			
+			File[] resultProcessFiles;
+			File[] processFiles = convertArrayListFileToArrayFile(arrayFile);
+			
+			resultProcessFiles = processSiblings(processFiles);
+			
+			
+			switch (processAgain(resultProcessFiles)) {
+			case "UNDEFINED" : break;
+			case "0" : break;
+			case "1" : System.out.println("WE FOUND THE ONE"); break;
+			case "2" : System.out.println("WE NEED TO DEAL WITH THOSE"); tempArrayFile = processSiblings(resultProcessFiles);
+			}
+			
+			System.out.println(tempArrayFile.length);
+			for (File f : tempArrayFile) {
+				System.out.println(f.getName());
+			}
 		//	process(rootFile);
 			
 			
@@ -150,6 +186,21 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 //		arrayNodes.stream().map(e -> e.toString()).forEach(System.out::println);
 
 	}
+	
+	
+	public String processAgain(File[] tabFile) {
+		if (tabFile != null) {
+			if (tabFile.length == 0) {System.out.println("THE RESULT IS UNDEFINED"); return "0";}
+			if (tabFile.length == 1) {System.out.println("THE RESULT IS THE ONLY ELEMENT IN THE ARRAY"); return "1";}
+			if (tabFile.length > 1) {System.out.println("WE GOT MULTIPLE RESULTS, NOW WE NEED TO SEND THEM TO PROCESS"); return "2";}
+		}
+		return "UNDEFINED";
+	}
+	
+	public int nbrSiblings(File file) {
+		return nbrFiles(file.getParentFile());
+	}
+	
 	
 	private JTree orderingNodes(ArrayList<File> listFiles) {
 		int level = 0;
@@ -278,7 +329,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		// We get the directories that has at least on child.
 		File[] tabDir = getListDir(file);
 
-		System.out.println("Taille du tableau de files : " + tabDir.length );
+	//	System.out.println("Taille du tableau de files : " + tabDir.length );
 		System.out.println("we get the content from " + file.getName() + " and list an array with its elements");
 		if (tabDir != null) {
 			for (File f : tabDir) {
@@ -327,10 +378,61 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	
 	
 	public boolean isLast(File file) {
-		if (getList(file) == null) {
+		if (getList(file) == null || isEmptyDir(file) == true) {
 			return true;
 		} else { return false; }
 	}
+	
+	// Returns an array containing the siblings of the file given as param
+	public File[] getSiblings(File file) {
+		File parent = file.getParentFile();
+		File[] siblings = getList(parent);
+		return siblings;
+		}
+	
+	// Returns an array of siblings filtered by elements that are not last element
+	public File[] checkLastSiblings(File[] tabFile) {
+		ArrayList<File> tableauDeFile = new ArrayList<File>();;
+		for (File f : tabFile) { if (isLast(f)) { } else { tableauDeFile.add(f);} }
+		ArrayList<Object> listObj = new ArrayList<Object>();
+		for (File f : tableauDeFile) { listObj.add(f); }
+		return ((File[]) convertArrayListObjectToArrayObject(listObj));
+	}
+	
+	// Processing the siblings that are not last element, returns the file that is at last position in the hierarchy
+	public File[] processSiblings(File[] tabSiblings) {
+	//	ArrayList<Object> listObj = new ArrayList<Object>();
+		File tempElement = new File("undefined");
+		ArrayList<File> stepTable = new ArrayList<File>();
+		// ArrayList that represents the files that are not last element.
+		ArrayList<File> files = new ArrayList<File>();
+		// For each File, from the array given as param,
+		for (File f : tabSiblings) {
+			// creates an array of File that lists the files present in it
+			File[] tabFiles = getList(f);
+			// and for each of thoses files, check if it's last element, 
+			if (tabFiles != null) {
+				for (File g : tabFiles) {
+					// in case it isn't, we add it to the array "files" representing the files that are not last element.
+					 if (isLast(g)) { tempElement = g; } else {files.add(g);}
+				}
+			}
+		}
+		// Checks if the array "files" is empty, has one, or has more elements
+		if (files.size() == 0) {
+			System.out.println("We did not get any element that is not last element, we should RETURN the last tempElement file");
+			stepTable.add(tempElement);
+			return convertArrayListFileToArrayFile(stepTable);
+		} else if (files.size() == 1) {
+			System.out.println("We got only one element that is last element, we should RETURN this element");
+			return convertArrayListFileToArrayFile(files);
+		} else {
+			System.out.println("We got several elements that are not last element, we RETURN these elements, we need to process them by sending them to previous steps");
+			return convertArrayListFileToArrayFile(files);
+		}
+	}
+	
+	
 	
 	public void gettingLevel(File directory) {
 		// If the directory has children
@@ -360,14 +462,9 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	}
 	
 	// Convert an ArrayList<File> into an array File[]
-//		public File[] convertArrayListFileToTabFile(ArrayList<File> arrayFile){
-//			File[] tabFile;
-//			
-//			for (int i = 0; i == arrayFile.size(); i++) {
-//				tabFile[i] = arrayFile.to;
-//			}
-//			return tabFile;
-//		}
+		public File[] convertArrayListFileToArrayFile(ArrayList<File> arrayFile){
+			return (arrayFile.toArray(new File[arrayFile.size()]));
+		}
 	
 	// To get an array of File[] that represents the content of the File given as param.
 	public File[] getList(File theDir) {
@@ -417,8 +514,8 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		return nbr;
 	}
 	
-	public File[] convertArrayListFileToArrayFile(ArrayList<File> arrayList) {
-		return (arrayList.toArray(new File[arrayList.size()]));
+	public Object[] convertArrayListObjectToArrayObject(ArrayList<Object> arrayList) {
+		return (arrayList.toArray(new Object[arrayList.size()]));
 	}
 	
 	// Gets an array of File that represents the list of the directories that are present in the File given as param.
@@ -435,8 +532,15 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 				lesDossiers.add(f);
 			}
 		}
+		
+		ArrayList<Object> listObject = new ArrayList<Object>();
+		
+		for (File f : arrayFile) {
+			listObject.add(f);
+		}
+		
 		// Returns the ArrayList converted to an array.
-		return convertArrayListFileToArrayFile(lesDossiers);
+		return (File[]) convertArrayListObjectToArrayObject(listObject);
 	}
 	
 	
@@ -706,7 +810,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			
 			//  Pour chaque élément (donc dossier) dans tabTempDir, si il n'est pas vide, on récupère la liste dans tempList
 			for (File f : tabTempDir) {
-				if (f.listFiles() != null) {
+				if (!isEmptyDir(f)) {
 					File[] tempList = getList(f);
 					for (File d : tempList) {
 						process(f);
