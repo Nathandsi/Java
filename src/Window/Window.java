@@ -58,8 +58,9 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	private DefaultMutableTreeNode containerNode;
 	private ArrayList<File> tableauFiles = new ArrayList<File>();
 	private ArrayList<File> orderedListFiles = new ArrayList<File>();
-	private ArrayList<ArrayList<String>> contentLevel = new ArrayList<ArrayList<String>>();
+	private ArrayList<ArrayList<File>> contentLevel = new ArrayList<ArrayList<File>>();
 	private File[] tempArrayFile;
+	private ArrayList<Integer> nbrFilesInLevel = new ArrayList<Integer>();
 	
 	
 	// private JComboBox<String> selectionList = new JComboBox<String>();
@@ -114,6 +115,8 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 //		arrayFile.stream().map(element -> element.getAbsolutePath()).forEach(System.out::println);
 		
 		if (rootFile.list() != null) {
+			/*
+			
 			// CustomDirectory creation, from the source folder (rootFile), with recursivity set to "true"
 			CustomDirectory customDir = new CustomDirectory(rootFile, true);
 			// Invoking the "listD()" method from the "CustomDirectory" class that lists all the elements from the folder
@@ -170,7 +173,8 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			case "UNDEFINED" : break;
 			case "0" : break;
 			case "1" : System.out.println("WE FOUND THE ONE"); break;
-			case "2" : System.out.println("WE NEED TO DEAL WITH THOSE"); tempArrayFile = processSiblings(resultProcessFiles);
+			case "2" : System.out.println("WE NEED TO DEAL WITH THOSE"); tempArrayFile = processSiblings(resultProcessFiles); break;
+			default : break;
 			}
 			
 			System.out.println(tempArrayFile.length);
@@ -178,8 +182,8 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 				System.out.println(f.getName());
 			}
 		//	process(rootFile);
-			
-			
+			*/
+			gettingLevels(rootFile);
 		}
 
 //		arrayNodes = getNodesFromDir(rootFile);
@@ -434,22 +438,73 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	
 	
 	
-	public void gettingLevel(File directory) {
+	public void gettingLevels(File directory) {
 		// If the directory has children
-		if (getList(directory) != null){
-			// We get the list from the directory as File[], we convert it into an ArrayList<String> that represents the name of the files, and we add this ArrayList to the contentLevel.
-			ArrayList<String> tempArray = convertTabToArrayListString(getList(directory));
-			contentLevel.add(tempArray);
+		if (getList(directory) != null && getList(directory).length != 0){
+			// We 
+			Integer nbrFiles = getList(directory).length;
+			nbrFilesInLevel.add(nbrFiles);
+			// We get the list from the directory as File[], we convert it into an ArrayList<File> and we add this ArrayList to the contentLevel.
+			contentLevel.add(convertTabToArrayList(getList(directory)));
 		}
+		// Gets an array with only the directories (no files)
+		File[] listDir = getListDir(directory);
+		
+		ArrayList<File> arrayListDeDir = new ArrayList<File>();
+		for (File f : listDir) {
+			arrayListDeDir.add(f);
+		}
+	//	arrayListDeDir.stream().map(e -> e.getName()).forEach(System.out::println);
+
+			for (File f : listDir) {
+				System.out.println(f.getName());
+				processLevel(f);
+			}
+		
+//		for (ArrayList<File> e : contentLevel) {
+//			e.stream().map(f -> f.getName()).forEach(System.out::println);
+//		}
+//		for (Integer i : nbrFilesInLevel) {
+//			System.out.println(i);
+//		}
+		
 	}
+	
+	public void processLevel(File parent) {
+		File[] files = getList(parent);
+		ArrayList<File> arrayFiles = new ArrayList<File>();
+		arrayFiles = convertTabToArrayList(files);
+		int nbrDir = nbrDir(parent);
+		
+		if (nbrDir == 0) {
+			System.out.println("IF WE GET TO THIS POINT, WE SHOULD NOT SEE ANY DIRECTORIES AND WE SHOULD CREATE NODES WITH FILES AND ADDS TO UPPER NODE");
+			System.out.println("Liste des fichiers à process en node :");
+			System.out.println("FOLLOWING FILES FOUND : ");
+			arrayFiles.stream().map(f -> f.getName()).forEach(System.out::println);
+				// ******** We need to make the node convertion here *************.
+				// ***** Needs to call a function (to be defined) that handles the list of files within a directory, where there are no directories (in the directory) **********
+		} else if (nbrDir > 0) {
+			File[] tableauDir = getListDir(parent);
+			for (File f : tableauDir) {
+				System.out.println("WE FOUND A DIRECTORY: " + f.getName() + ", WE SEND IT TO  -->  gettingLevels() to be processed");
+				gettingLevels(f);
+			}
+		}
+		
+	}
+	
 	
 	// Convert an array of File into an ArrayList<File>
 	public ArrayList<File> convertTabToArrayList(File[] tabFile){
+		if (tabFile != null) {
 		ArrayList<File> arrayFile = new ArrayList<File>();
 		for (File f : tabFile) {
 			arrayFile.add(f);
 		}
 		return arrayFile;
+		} else {
+			return null;
+		}
 	}
 	
 	// Convert an array of File into an ArrayList<String> representing only the name of the files.
@@ -468,8 +523,12 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	
 	// To get an array of File[] that represents the content of the File given as param.
 	public File[] getList(File theDir) {
-		File[] lesFichiers = theDir.listFiles();
-		return lesFichiers;
+		if (theDir != null) {
+			File[] lesFichiers = theDir.listFiles();
+			return lesFichiers;
+		} else {
+			return null;
+		}
 	}
 	
 	// To check if the File given as param is an empty directory.
@@ -484,6 +543,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	public int nbrFiles(File file) {
 		int nbr = 0;
 		File[] tabFile = getList(file);
+		if (tabFile.length == 0){return 0;}
 		for (File f : tabFile) {
 			nbr = nbr +1;
 		}
@@ -508,10 +568,14 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	public int nbrDir(File file) {
 		int nbr = 0;
 		File[] tabFile = getList(file);
+		if (tabFile != null) {
 		for (File f : tabFile) {
 			if (f.isDirectory()) {nbr += 1;}
 		}
 		return nbr;
+		} else {
+			return 0;
+		}
 	}
 	
 	public Object[] convertArrayListObjectToArrayObject(ArrayList<Object> arrayList) {
@@ -520,27 +584,24 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	
 	// Gets an array of File that represents the list of the directories that are present in the File given as param.
 	public File[] getListDir(File directory) {
-		// In case we are dealing with a simple file or an empty directory.
-		if (directory.isDirectory() == false || nbrDir(directory) == 0) {return null;}
+		if (directory == null) {return null;}
 		// Creates an array of File with the list from the File given as param.
 		File[] lesFichiers = getList(directory);
-		// Creates an empty ArrayList
+		// Creates an empty ArrayList for the directories
 		ArrayList<File> lesDossiers = new ArrayList<File>();
-		// Adds each directory that is not empty to the ArrayList
-		for (File f : lesFichiers) {
-			if (f.isDirectory() && hasChild(f) == true) {
-				lesDossiers.add(f);
+			// In case we are dealing with a simple file or an empty directory.
+			if (directory.isDirectory() == false || nbrDir(directory) == 0) {
+				// nothing appends - intended -
+			} else {
+				
+				// Adds each directory that is not empty to the ArrayList
+				for (File f : lesFichiers) {
+					if (f.isDirectory() && hasChild(f) == true) {
+						lesDossiers.add(f);
+					}
+				}	
 			}
-		}
-		
-		ArrayList<Object> listObject = new ArrayList<Object>();
-		
-		for (File f : arrayFile) {
-			listObject.add(f);
-		}
-		
-		// Returns the ArrayList converted to an array.
-		return (File[]) convertArrayListObjectToArrayObject(listObject);
+		return convertArrayListFileToArrayFile(lesDossiers);
 	}
 	
 	
