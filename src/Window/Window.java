@@ -10,6 +10,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -62,6 +63,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	private File[] tempArrayFile;
 	private ArrayList<Integer> nbrFilesInLevel = new ArrayList<Integer>();
 	
+	public ArrayList<DefaultMutableTreeNode> tabNodes = new ArrayList<DefaultMutableTreeNode>();
 	
 	// private JComboBox<String> selectionList = new JComboBox<String>();
 	
@@ -181,9 +183,28 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			for (File f : tempArrayFile) {
 				System.out.println(f.getName());
 			}
-		//	process(rootFile);
+		//	process(rootFile); .map(f -> f.getName())
 			*/
 			gettingLevels(rootFile);
+			
+			contentLevel.stream().forEach((System.out::println));
+			
+			// contentLevel.stream().forEach(e -> e.stream().forEach(System.out::println));
+			
+			// File[] tabFi = contentLevel.stream().forEach(g -> g.stream().forEach(() -> convertArrayListFileToArrayFile(e)));
+			
+			
+			
+			
+			int treeSize = contentLevel.size();
+			
+			System.out.println("TREE SIZE ----->  " + treeSize);
+			
+			for (ArrayList<File> e : contentLevel) {
+				System.out.println(getNodes(e));
+			}
+			
+
 		}
 
 //		arrayNodes = getNodesFromDir(rootFile);
@@ -191,6 +212,21 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 
 	}
 	
+	public DefaultMutableTreeNode getNodes(ArrayList<File> contentArray) {
+		// Get the first element to obtain access to the parent file in order to define the parent node.
+		File fichier = contentArray.get(0);
+		System.out.println(fichier);
+		// Creates the parent node.
+		DefaultMutableTreeNode theNode = new DefaultMutableTreeNode(new NodeInfo(fichier.getParentFile().getName(), fichier.getParentFile().getPath(), fichier.getParentFile().getParentFile().getName(), fichier.getParentFile().isDirectory(), nbrFiles(fichier.getParentFile()), isLast(fichier.getParentFile())));
+		System.out.println("THE NODE : --> :" + theNode.toString());
+		// For each file in the ArrayListy<File> we create a node with related params and then we add it to the parent node.
+		for (File f : contentArray) {
+			DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), f.getPath(), f.getParentFile().getName(), f.isDirectory(), nbrFiles(f), isLast(f)));
+			System.out.println("TEMPNODE : --> :" + tempNode.toString());
+			theNode.add(tempNode);
+		}
+		return theNode;
+	}
 	
 	public String processAgain(File[] tabFile) {
 		if (tabFile != null) {
@@ -347,7 +383,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	System.out.println("IF YOU SEE THIS IT RETURNS NULL");
 		return null;
 	}
-	
+
 	
 	
 	// Function that checks if the File given as param does have at least one child.
@@ -441,7 +477,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	public void gettingLevels(File directory) {
 		// If the directory has children
 		if (getList(directory) != null && getList(directory).length != 0){
-			// We 
+			// We get the number of files in the directory and adds it to nbrFilesInLevel
 			Integer nbrFiles = getList(directory).length;
 			nbrFilesInLevel.add(nbrFiles);
 			// We get the list from the directory as File[], we convert it into an ArrayList<File> and we add this ArrayList to the contentLevel.
@@ -457,7 +493,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	//	arrayListDeDir.stream().map(e -> e.getName()).forEach(System.out::println);
 
 			for (File f : listDir) {
-				System.out.println(f.getName());
+				System.out.println(f.getName());				
 				processLevel(f);
 			}
 		
@@ -476,23 +512,29 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		arrayFiles = convertTabToArrayList(files);
 		int nbrDir = nbrDir(parent);
 		
-		if (nbrDir == 0) {
-			System.out.println("IF WE GET TO THIS POINT, WE SHOULD NOT SEE ANY DIRECTORIES AND WE SHOULD CREATE NODES WITH FILES AND ADDS TO UPPER NODE");
-			System.out.println("Liste des fichiers à process en node :");
-			System.out.println("FOLLOWING FILES FOUND : ");
-			arrayFiles.stream().map(f -> f.getName()).forEach(System.out::println);
-				// ******** We need to make the node convertion here *************.
-				// ***** Needs to call a function (to be defined) that handles the list of files within a directory, where there are no directories (in the directory) **********
-		} else if (nbrDir > 0) {
-			File[] tableauDir = getListDir(parent);
-			for (File f : tableauDir) {
-				System.out.println("WE FOUND A DIRECTORY: " + f.getName() + ", WE SEND IT TO  -->  gettingLevels() to be processed");
-				gettingLevels(f);
-			}
+		contentLevel.add(arrayFiles);
+		
+
+		File[] tableauDir = getListDir(parent);
+		for (File f : tableauDir) {
+			System.out.println("WE FOUND A DIRECTORY: " + f.getName() + ", WE SEND IT TO  -->  gettingLevels() to be processed");
+			gettingLevels(f);
 		}
+
 		
 	}
 	
+	public File[] getFilesOnly(File file) {
+		ArrayList<File> tableauFiles = new ArrayList<File>();
+		for (File f : file.listFiles()) {
+			if (f.isDirectory() == true) {
+				// -- Do nothing --
+			} else {
+				tableauFiles.add(f);
+			}
+		}
+		return convertArrayListFileToArrayFile(tableauFiles);
+	}
 	
 	// Convert an array of File into an ArrayList<File>
 	public ArrayList<File> convertTabToArrayList(File[] tabFile){
@@ -543,10 +585,13 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	public int nbrFiles(File file) {
 		int nbr = 0;
 		File[] tabFile = getList(file);
-		if (tabFile.length == 0){return 0;}
-		for (File f : tabFile) {
-			nbr = nbr +1;
+		if (tabFile != null) {
+			if (tabFile.length == 0 || tabFile == null){return 0;}
+			for (File f : tabFile) {
+				nbr = nbr +1;
+			}
 		}
+		
 		return nbr;
 	}
 	
