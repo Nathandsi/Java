@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -200,10 +201,46 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			
 			System.out.println("TREE SIZE ----->  " + treeSize);
 			
+			ArrayList<DefaultMutableTreeNode> tabNodes = new ArrayList<DefaultMutableTreeNode>();
+			
+			System.out.println("********************************************************");
+			
 			for (ArrayList<File> e : contentLevel) {
 				System.out.println(getNodes(e));
+				tabNodes.add(getNodes(e));
+				System.out.println("////////////////////////////////////////////////////////");
+			}
+			DefaultMutableTreeNode[] tabNode = convertArrayListNodeToArrayNode(tabNodes);
+			System.out.println("+++++++++++++++++++++++++++++++++");
+			
+			
+			
+//			for (int i = 5; i <= 5; i++) {
+//				System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWW");
+//			}
+			
+			
+			
+			System.out.println(tabNode.length);
+			
+			DefaultMutableTreeNode[] tableauNode = tabNode;
+			
+			for (int i = 0; i <= tabNode.length - 1; i++) {
+				for  (int j = tabNode.length - 1 ; j >= 0; j--) {
+					System.out.println("tableauNode[j] = " + tableauNode[j]);
+					System.out.println("tabNode[i] = " + tabNode[i]);
+					tableauNode[j] = tabNode[i];
+					System.out.println("-----CONVERTION ICI-----");
+					System.out.println("tableauNode[j] = " + tableauNode[j]);
+					System.out.println("tabNode[i] = " + tabNode[i]);
+				}
 			}
 			
+
+			
+		//	convertArrayNodeToArrayListNode(tabNode).stream().forEach(System.out::println);
+		//	System.out.println("00000000000000000000000000000000000000000");
+		//	convertArrayNodeToArrayListNode(tableauNode).stream().forEach(System.out::println);
 
 		}
 
@@ -212,17 +249,26 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 
 	}
 	
+	public ArrayList<String> returnNodes(DefaultMutableTreeNode node){
+		
+	
+
+		
+		return null;
+	}
+	
 	public DefaultMutableTreeNode getNodes(ArrayList<File> contentArray) {
 		// Get the first element to obtain access to the parent file in order to define the parent node.
 		File fichier = contentArray.get(0);
+		File parentFile = fichier.getParentFile(); 
 		System.out.println(fichier);
 		// Creates the parent node.
-		DefaultMutableTreeNode theNode = new DefaultMutableTreeNode(new NodeInfo(fichier.getParentFile().getName(), fichier.getParentFile().getPath(), fichier.getParentFile().getParentFile().getName(), fichier.getParentFile().isDirectory(), nbrFiles(fichier.getParentFile()), isLast(fichier.getParentFile())));
-		System.out.println("THE NODE : --> :" + theNode.toString());
+		DefaultMutableTreeNode theNode = createNode(parentFile);
+	//	System.out.println("THE NODE : --> :" + theNode.toString());
 		// For each file in the ArrayListy<File> we create a node with related params and then we add it to the parent node.
 		for (File f : contentArray) {
-			DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(new NodeInfo(f.getName(), f.getPath(), f.getParentFile().getName(), f.isDirectory(), nbrFiles(f), isLast(f)));
-			System.out.println("TEMPNODE : --> :" + tempNode.toString());
+			DefaultMutableTreeNode tempNode = createNode(f);
+	//		System.out.println("TEMPNODE : --> :" + tempNode.toString());
 			theNode.add(tempNode);
 		}
 		return theNode;
@@ -383,7 +429,6 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	System.out.println("IF YOU SEE THIS IT RETURNS NULL");
 		return null;
 	}
-
 	
 	
 	// Function that checks if the File given as param does have at least one child.
@@ -517,7 +562,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 
 		File[] tableauDir = getListDir(parent);
 		for (File f : tableauDir) {
-			System.out.println("WE FOUND A DIRECTORY: " + f.getName() + ", WE SEND IT TO  -->  gettingLevels() to be processed");
+		//	System.out.println("WE FOUND A DIRECTORY: " + f.getName() + ", WE SEND IT TO  -->  gettingLevels() to be processed");
 			gettingLevels(f);
 		}
 
@@ -558,9 +603,22 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		return arrayFileString;
 	}
 	
+	
+	public ArrayList<DefaultMutableTreeNode> convertArrayNodeToArrayListNode(DefaultMutableTreeNode[] tabNode){
+		ArrayList<DefaultMutableTreeNode> arrayListNode = new ArrayList<DefaultMutableTreeNode>();
+		for (DefaultMutableTreeNode n : tabNode) {
+			arrayListNode.add(n);
+		}
+		return arrayListNode;
+	}
+	
 	// Convert an ArrayList<File> into an array File[]
 		public File[] convertArrayListFileToArrayFile(ArrayList<File> arrayFile){
 			return (arrayFile.toArray(new File[arrayFile.size()]));
+		}
+		
+		public DefaultMutableTreeNode[] convertArrayListNodeToArrayNode(ArrayList<DefaultMutableTreeNode> arrayNodes){
+			return (arrayNodes.toArray(new DefaultMutableTreeNode[arrayFile.size()]));
 		}
 	
 	// To get an array of File[] that represents the content of the File given as param.
@@ -582,11 +640,12 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	}
 	
 	// To get the number of files present in the File given as param.
+	// CAUTION : if the File[] f got from the listFiles() method is null, we cannot use the f.length as it would raise a NullPointerException
 	public int nbrFiles(File file) {
 		int nbr = 0;
 		File[] tabFile = getList(file);
 		if (tabFile != null) {
-			if (tabFile.length == 0 || tabFile == null){return 0;}
+			if (tabFile.length == 0){return 0;}
 			for (File f : tabFile) {
 				nbr = nbr +1;
 			}
