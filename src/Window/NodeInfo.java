@@ -45,7 +45,7 @@ public class NodeInfo{
 	}
 	
 	public String toString() {
-		String text =  nodeName +  " contient " + nbrChild + " éléments " + " et il est l'enfant de " + parent;
+		String text =  nodeName +  "  --> enfant de -->  " + parent;
 		return text;
 	}
 	

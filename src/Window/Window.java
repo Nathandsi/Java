@@ -2,6 +2,7 @@ package Window;
 // Imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -65,6 +66,8 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	private ArrayList<Integer> nbrFilesInLevel = new ArrayList<Integer>();
 	
 	public ArrayList<DefaultMutableTreeNode> tabNodes = new ArrayList<DefaultMutableTreeNode>();
+	
+	public ArrayList<DefaultMutableTreeNode> tNodes = new ArrayList<DefaultMutableTreeNode>();
 	
 	// private JComboBox<String> selectionList = new JComboBox<String>();
 	
@@ -225,16 +228,59 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			
 			DefaultMutableTreeNode[] tableauNode = tabNode;
 			
-			for (int i = 0; i <= tabNode.length - 1; i++) {
-				for  (int j = tabNode.length - 1 ; j >= 0; j--) {
-					System.out.println("tableauNode[j] = " + tableauNode[j]);
-					System.out.println("tabNode[i] = " + tabNode[i]);
-					tableauNode[j] = tabNode[i];
-					System.out.println("-----CONVERTION ICI-----");
-					System.out.println("tableauNode[j] = " + tableauNode[j]);
-					System.out.println("tabNode[i] = " + tabNode[i]);
-				}
+//			for (int i = 0; i <= tabNode.length - 1; i++) {
+//				for  (int j = tabNode.length - 1; j >= 0; j--) {
+//					System.out.println("i = " + i);
+//					System.out.println("j = " + j);
+//					System.out.println("tableauNode[i] = " + tableauNode[i]);
+//					System.out.println("tableauNode[j] = " + tableauNode[j]);
+//					System.out.println("tabNode[i] = " + tabNode[i]);
+//					System.out.println("tabNode[j] = " + tabNode[j]);
+//					System.out.println("-----  CONVERTION ICI  -----");
+//					tableauNode[j] = tabNode[i];
+//					System.out.println("-----FIN DE CONVERTION ICI-----");
+//					System.out.println("i = " + i);
+//					System.out.println("j = " + j);
+//					System.out.println("tableauNode[i] = " + tableauNode[i]);
+//					System.out.println("tableauNode[j] = " + tableauNode[j]);
+//					System.out.println("tabNode[i] = " + tabNode[i]);
+//					System.out.println("tabNode[j] = " + tabNode[j]);
+//				}
+//			}
+//			for (DefaultMutableTreeNode node : tableauNode) {
+//				System.out.println(node);
+//			}
+			
+			for (ArrayList<File> arrayNode : contentLevel) {
+				System.out.println(arrayNode);
 			}
+			System.out.println("BEFORE CONVERTION");
+			reverseList(contentLevel);
+			System.out.println("AFTER CONVERTION");
+			for (ArrayList<File> arrayNode : contentLevel) {
+				System.out.println(arrayNode);
+			}
+			
+			
+			ArrayList<DefaultMutableTreeNode> theRootNode = getTheNode(contentLevel);
+			
+			System.out.println("5555555555555555555555555555555555555555555555555555");
+			System.out.println(theRootNode);
+			DefaultMutableTreeNode[] arrayRootNode = convertArrayListNodeToArrayNode(theRootNode);
+			
+			for (int i = 0; i <= arrayRootNode.length; i++) {
+				if (i >= arrayRootNode.length) {
+					
+				} else {
+					arrayRootNode[i+1].add(arrayRootNode[i]);
+				}
+
+			}
+			
+			JTree theTree = new JTree(arrayRootNode[arrayRootNode.length]);
+			
+			this.add(theTree);
+			
 			
 
 			
@@ -249,11 +295,74 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 
 	}
 	
-	public ArrayList<String> returnNodes(DefaultMutableTreeNode node){
-		
+//	public DefaultMutableTreeNode createRootNode(ArrayList<DefaultMutableTreeNode> arrayNodes) {
+//		
+//		for (DefaultMutableTreeNode n : arrayNodes){
+//			((DefaultMutableTreeNode) n.getParent()).add(n);
+//		}
+//		return arrayNodes.get(arrayNodes.size()-1);
+//	}
 	
-
+	public DefaultMutableTreeNode addChildToParentNode(DefaultMutableTreeNode parent, DefaultMutableTreeNode child) {
+		parent.add(child);
+		return parent;
+	}
+	
+	public ArrayList<DefaultMutableTreeNode> getTheNode(ArrayList<ArrayList<File>> BigContent) {
 		
+		DefaultMutableTreeNode parentNode = null;
+		
+		for (ArrayList<File> arrayNode : BigContent) {
+			// Creates the userObject parentNodeInfo that will be use to create the parent Node
+			NodeInfo parentNodeInfo = new NodeInfo(
+					arrayNode.get(0).getParentFile().getName(),  // get the parent's name
+					arrayNode.get(0).getParentFile().getPath(),   // get the parent's url
+					arrayNode.get(0).getParentFile().getParentFile().getName(), // get the granparent's name
+					true, // is it a directory
+					nbrFiles(arrayNode.get(0).getParentFile()), // get thet number of files in the parent, equals to the number of siblings of the element in arrayNode.get(0)
+					isLast(arrayNode.get(0).getParentFile())  // check if the parent is at end (impossible as it is a parent here)
+			);
+			// Creates a parent node with the parentNodeInfo userObject
+			parentNode = new DefaultMutableTreeNode(parentNodeInfo);
+			// for each file in the ArrayList arrayNode,
+			for (File f : arrayNode) {
+				// Creates a userObject corresponding to the file
+				NodeInfo infoNode = new NodeInfo(
+						f.getName(),
+						f.getPath(), 
+						f.getParentFile().getName(),
+						f.isDirectory(),
+						nbrFiles(f),
+						isLast(f)
+				);
+				// Creates a Node with the infoNode userObject
+				DefaultMutableTreeNode Node = new DefaultMutableTreeNode(infoNode);
+				// Adds the Node to the parent node
+				parentNode.add(Node);
+				
+			}
+			// Adds the parent node to an array tNodes
+			tNodes.add(parentNode);
+		}
+		
+		return tNodes;
+	}
+	
+	public static <T> void reverseList(List<T> list) {
+		// Base condition when the list size is 0
+		if (list.size() <= 1 || list == null) {
+			return;
+		}
+		T value = list.remove(0);
+		// Call the recursive function to reverse the list after removing the first element
+		reverseList(list);
+		// Now after the rest of the list has been reversed by the upper recursive call, add the first value to the end
+		list.add(value);
+	}
+	
+	
+	
+	public ArrayList<String> returnNodes(DefaultMutableTreeNode node){
 		return null;
 	}
 	
@@ -555,7 +664,6 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		File[] files = getList(parent);
 		ArrayList<File> arrayFiles = new ArrayList<File>();
 		arrayFiles = convertTabToArrayList(files);
-		int nbrDir = nbrDir(parent);
 		
 		contentLevel.add(arrayFiles);
 		
@@ -618,7 +726,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		}
 		
 		public DefaultMutableTreeNode[] convertArrayListNodeToArrayNode(ArrayList<DefaultMutableTreeNode> arrayNodes){
-			return (arrayNodes.toArray(new DefaultMutableTreeNode[arrayFile.size()]));
+			return (arrayNodes.toArray(new DefaultMutableTreeNode[arrayNodes.size()]));
 		}
 	
 	// To get an array of File[] that represents the content of the File given as param.
