@@ -255,7 +255,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 				System.out.println(arrayNode);
 			}
 			System.out.println("BEFORE CONVERTION");
-			reverseList(contentLevel);
+			reverseM(contentLevel);
 			System.out.println("AFTER CONVERTION");
 			for (ArrayList<File> arrayNode : contentLevel) {
 				System.out.println(arrayNode);
@@ -295,7 +295,6 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			JTree theTree = new JTree(arrayRootNode);
 			
 			this.add(theTree);
-			
 			
 
 			
@@ -373,14 +372,18 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	
 	public static <T> void reverseList(List<T> list) {
 		// Base condition when the list size is 0
-		if (list.size() <= 1 || list == null) {
-			return;
-		}
+		if (list.size() <= 1 || list == null) {return;}
 		T value = list.remove(0);
 		// Call the recursive function to reverse the list after removing the first element
 		reverseList(list);
 		// Now after the rest of the list has been reversed by the upper recursive call, add the first value to the end
 		list.add(value);
+	}
+	
+	public static <T> void reverseM(List<T> liste) {
+		for (int i = 0; i <= liste.size()-1; i++) {
+			liste.add(liste.remove(liste.size()-1-i));
+		}
 	}
 	
 	
