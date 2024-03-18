@@ -266,18 +266,33 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			
 			System.out.println("5555555555555555555555555555555555555555555555555555");
 			System.out.println(theRootNode);
+			
+			/*
 			DefaultMutableTreeNode[] arrayRootNode = convertArrayListNodeToArrayNode(theRootNode);
 			
-			for (int i = 0; i <= arrayRootNode.length; i++) {
+			for (int i = 0; i < arrayRootNode.length; i++) {
 				if (i >= arrayRootNode.length) {
 					
-				} else {
+				} else if (i < arrayRootNode.length -1) {
 					arrayRootNode[i+1].add(arrayRootNode[i]);
 				}
 
 			}
+			*/
 			
-			JTree theTree = new JTree(arrayRootNode[arrayRootNode.length]);
+			for (DefaultMutableTreeNode n : theRootNode) {
+				System.out.println("parent : " + n.getUserObject());
+				if (n.getUserObject() != null) {
+					addChildToParentNode((DefaultMutableTreeNode)n.getParent(), n);
+				}
+			}
+			DefaultMutableTreeNode[] arrayRootNode = convertArrayListNodeToArrayNode(theRootNode);
+			for (int i = 0; i < arrayRootNode.length; i++) {
+				System.out.println("***" + arrayRootNode[i].getChildCount());
+			}
+			
+			
+			JTree theTree = new JTree(arrayRootNode);
 			
 			this.add(theTree);
 			
@@ -304,7 +319,9 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 //	}
 	
 	public DefaultMutableTreeNode addChildToParentNode(DefaultMutableTreeNode parent, DefaultMutableTreeNode child) {
-		parent.add(child);
+		if (parent != null) {
+			parent.add(child);
+		}
 		return parent;
 	}
 	
@@ -324,6 +341,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			);
 			// Creates a parent node with the parentNodeInfo userObject
 			parentNode = new DefaultMutableTreeNode(parentNodeInfo);
+			System.out.println("parent Node Creation with parentNodeInfo = " + parentNode);
 			// for each file in the ArrayList arrayNode,
 			for (File f : arrayNode) {
 				// Creates a userObject corresponding to the file
@@ -337,12 +355,17 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 				);
 				// Creates a Node with the infoNode userObject
 				DefaultMutableTreeNode Node = new DefaultMutableTreeNode(infoNode);
+				System.out.println("Node Creation with NodeInfo = " + Node);
 				// Adds the Node to the parent node
 				parentNode.add(Node);
+				System.out.println("NOW WE HAVE ADDED THE NODE TO THE PARENT NODE --> PARENT NODE  : " + parentNode);
 				
 			}
+			
+			System.out.println("tNode before : " + tNodes);
 			// Adds the parent node to an array tNodes
 			tNodes.add(parentNode);
+			System.out.println("tNode after : " + tNodes);
 		}
 		
 		return tNodes;
@@ -360,11 +383,6 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		list.add(value);
 	}
 	
-	
-	
-	public ArrayList<String> returnNodes(DefaultMutableTreeNode node){
-		return null;
-	}
 	
 	public DefaultMutableTreeNode getNodes(ArrayList<File> contentArray) {
 		// Get the first element to obtain access to the parent file in order to define the parent node.

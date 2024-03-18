@@ -45,7 +45,7 @@ public class NodeInfo{
 	}
 	
 	public String toString() {
-		String text =  nodeName +  "  --> enfant de -->  " + parent;
+		String text =  nodeName;
 		return text;
 	}
 	
