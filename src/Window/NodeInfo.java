@@ -1,5 +1,7 @@
 package Window;
 
+import javax.swing.tree.DefaultMutableTreeNode;
+
 public class NodeInfo{
 	private String nodeName;
 	private String nodePath;

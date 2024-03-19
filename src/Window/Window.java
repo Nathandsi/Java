@@ -281,7 +281,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			*/
 			
 			for (DefaultMutableTreeNode n : theRootNode) {
-				System.out.println("parent : " + n.getUserObject());
+				System.out.println("parent : ");
 				if (n.getUserObject() != null) {
 					addChildToParentNode((DefaultMutableTreeNode)n.getParent(), n);
 				}
@@ -289,10 +289,13 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			DefaultMutableTreeNode[] arrayRootNode = convertArrayListNodeToArrayNode(theRootNode);
 			for (int i = 0; i < arrayRootNode.length; i++) {
 				System.out.println("***" + arrayRootNode[i].getChildCount());
+				System.out.println("***" + arrayRootNode[i].getUserObject());
 			}
 			
 			
-			JTree theTree = new JTree(arrayRootNode);
+			
+			
+			JTree theTree = new JTree(arrayRootNode[arrayRootNode.length-1]);
 			
 			this.add(theTree);
 			
