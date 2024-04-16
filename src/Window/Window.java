@@ -70,8 +70,33 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	
 	public ArrayList<DefaultMutableTreeNode> tNodes = new ArrayList<DefaultMutableTreeNode>();
 	
-	// private JComboBox<String> selectionList = new JComboBox<String>();
+	// Only files that have been converted to a node then added to a parent node has been processed
+	public ArrayList<String> nameFileProcessed = new ArrayList<String>();
 	
+	// This one is useful to see if the parent node has already been created, in order to avoid creating it again
+	public ArrayList<String> nameDirProcessed = new ArrayList<String>();
+	
+	// Only nodes that have been processed
+	public ArrayList<DefaultMutableTreeNode> nodeProcessed = new ArrayList<DefaultMutableTreeNode>();
+	// Only files that have been processed
+	public ArrayList<File> fileProcessed = new ArrayList<File>();
+	// Only parent nodes that have been processed
+	public ArrayList<DefaultMutableTreeNode> parentNodeProcessed = new ArrayList<DefaultMutableTreeNode>();
+	
+	
+	
+	// Represents the list of every directory inside userFiles
+	public ArrayList<File> fullDir = new ArrayList<File>();
+	public ArrayList<File> fullElement = new ArrayList<File>();
+	
+	public ArrayList<DefaultMutableTreeNode> fullNode = new ArrayList<DefaultMutableTreeNode>();
+	
+	public boolean multiRecurs = false;
+	
+	// These 3 nodes are there to be replaced by the process...
+	public DefaultMutableTreeNode childNode = new DefaultMutableTreeNode();
+	public DefaultMutableTreeNode actualNode = new DefaultMutableTreeNode();
+	public DefaultMutableTreeNode parentNode = new DefaultMutableTreeNode();
 	
 	// Constructor
 	public Window(boolean isFullWindow, int w, int h, Color backColor, boolean isUnDecorated, String closeOperation) {
@@ -107,155 +132,12 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 
 		tempNbr = rootNode.getChildCount();
 		tabTempFiles = rootFile.listFiles();
-		/*
-		for (File fichier : tabTempFiles) {
-			tableauFiles.add(fichier);
-			tempNodeList.add(convertFileToNode(fichier));
-		}
-		*/
-	//	System.out.println(tempNodeList);
-		
-		
-	//	Tree tree = new Tree(containerNode, true);
-		
-		
-//		listDirectory(rootFile.listFiles());
-//		arrayFile.stream().map(element -> element.getAbsolutePath()).forEach(System.out::println);
 		
 		if (rootFile.list() != null) {
-			/*
 			
-			// CustomDirectory creation, from the source folder (rootFile), with recursivity set to "true"
-			CustomDirectory customDir = new CustomDirectory(rootFile, true);
-			// Invoking the "listD()" method from the "CustomDirectory" class that lists all the elements from the folder
-			customDir.listD(customDir);
-			// Invoking the "showFile()" method that return an ArrayList, streamed and mapped to only keep the name, then println each line (that represents an element)
-		    //	 customDir.showFiles().stream().map(element -> element.getName()).forEach(System.out::println);
-			
-//			customDir.showFiles().stream().map(element -> element.getName()).forEach(DefaultMutableTreeNode::new);
-			customDir.showFiles().stream().forEach((element) -> {
-				arrayFile.add(element);
-				});
-			customDir.showNodes().stream().forEach((element) -> {
-				arrayNodes.add(element);
-				});
-			
-			
-	//	customDir.showNodes().stream().map(element -> element.getUserObject()).forEach(System.out::println);
-			ArrayList<Object> myList = new ArrayList<Object>();
-			customDir.showNodes().stream().map(element -> element.getUserObject()).forEach( n -> {myList.add(n);});
-		//	myList.stream().forEach(System.out::println);
-		//	customDir.showFiles().stream().map(element -> element.getParentFile().getName() + " -> " + element.getName()).forEach(System.out::println);
-			
-		//	System.out.println(arrayNodes);
-			
-// ********			orderingNodes(arrayFile);
-			
-		//	searchForDir(rootFile);
-			
-			
-			ArrayList<Object> tableauDeFile = new ArrayList<Object>();
-			// Creates and fill an ArrayList<Object> with an ArrayList<File>
-			for (File f : arrayFile) {
-				tableauDeFile.add(f);
-			}
-			
-			Object[] tableauFile = convertArrayListObjectToArrayObject(tableauDeFile);
-
-			ArrayList<String> tableauDeString;
-			
-			for (Object f : tableauFile) {
-				System.out.println(((File)f).getName() + " --> " + ((File)f).getParentFile());
-				
-			}
-			
-			System.out.println(" ");
-			
-			File[] resultProcessFiles;
-			File[] processFiles = convertArrayListFileToArrayFile(arrayFile);
-			
-			resultProcessFiles = processSiblings(processFiles);
-			
-			
-			switch (processAgain(resultProcessFiles)) {
-			case "UNDEFINED" : break;
-			case "0" : break;
-			case "1" : System.out.println("WE FOUND THE ONE"); break;
-			case "2" : System.out.println("WE NEED TO DEAL WITH THOSE"); tempArrayFile = processSiblings(resultProcessFiles); break;
-			default : break;
-			}
-			
-			System.out.println(tempArrayFile.length);
-			for (File f : tempArrayFile) {
-				System.out.println(f.getName());
-			}
-		//	process(rootFile); .map(f -> f.getName())
-			*/
 			gettingLevels(rootFile);
 			
-		//	contentLevel.stream().forEach((System.out::println));
-			
-			// contentLevel.stream().forEach(e -> e.stream().forEach(System.out::println));
-			
-			// File[] tabFi = contentLevel.stream().forEach(g -> g.stream().forEach(() -> convertArrayListFileToArrayFile(e)));
-			
-			
-			
-			
 			int treeSize = contentLevel.size();
-			/*
-			System.out.println("TREE SIZE ----->  " + treeSize);
-			
-			ArrayList<DefaultMutableTreeNode> tabNodes = new ArrayList<DefaultMutableTreeNode>();
-			
-			System.out.println("********************************************************");
-			
-			for (ArrayList<File> e : contentLevel) {
-				System.out.println(getNodes(e));
-				tabNodes.add(getNodes(e));
-				System.out.println("////////////////////////////////////////////////////////");
-			}
-			DefaultMutableTreeNode[] tabNode = convertArrayListNodeToArrayNode(tabNodes);
-			System.out.println("+++++++++++++++++++++++++++++++++");
-			*/
-			
-			
-//			for (int i = 5; i <= 5; i++) {
-//				System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWW");
-//			}
-			
-			
-			/*
-			System.out.println(tabNode.length);
-			
-			DefaultMutableTreeNode[] tableauNode = tabNode;
-			*/
-//			for (int i = 0; i <= tabNode.length - 1; i++) {
-//				for  (int j = tabNode.length - 1; j >= 0; j--) {
-//					System.out.println("i = " + i);
-//					System.out.println("j = " + j);
-//					System.out.println("tableauNode[i] = " + tableauNode[i]);
-//					System.out.println("tableauNode[j] = " + tableauNode[j]);
-//					System.out.println("tabNode[i] = " + tabNode[i]);
-//					System.out.println("tabNode[j] = " + tabNode[j]);
-//					System.out.println("-----  CONVERTION ICI  -----");
-//					tableauNode[j] = tabNode[i];
-//					System.out.println("-----FIN DE CONVERTION ICI-----");
-//					System.out.println("i = " + i);
-//					System.out.println("j = " + j);
-//					System.out.println("tableauNode[i] = " + tableauNode[i]);
-//					System.out.println("tableauNode[j] = " + tableauNode[j]);
-//					System.out.println("tabNode[i] = " + tabNode[i]);
-//					System.out.println("tabNode[j] = " + tabNode[j]);
-//				}
-//			}
-//			for (DefaultMutableTreeNode node : tableauNode) {
-//				System.out.println(node);
-//			}
-			
-			//File[] tabArrayFile = convertArrayListFileToArrayFile(contentLevel.get(0));
-			
-
 			
 			ArrayList<DefaultMutableTreeNode> TabNode = new ArrayList<DefaultMutableTreeNode>();
 			
@@ -278,102 +160,166 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			System.out.println("Nombre elements level 1 :---------> " + contentLevel.get(1).size());
 			System.out.println("contentLevel 1 :------------------->" + ((DefaultMutableTreeNode) TheTabNodes[1]).getUserObject());
 			
-			
 
-			for (int i = 1; i <= TheTabNodes.length-1; i++) {
-				List<String> tabFiles; 
-				// We get the name of each elements present in the first ArrayList<File> of the contentLevel, returns a List<String> of the names (tabFiles).
-				tabFiles = contentLevel.get(i-1).stream().map(t -> t.getName()).collect(Collectors.toList());
-				File[] theTabFiles = convertTabNodesToTabFiles(TheTabNodes);
-				// Now we need to check if one of these elements is present in TheTabNodes and proceed to place them at the right index.
-			//	if () {}
-				TheTabNodes[i-1].add(TheTabNodes[i]);
-			}
-			
-			
-		//	reverseM(contentLevel);
-		//	System.out.println(contentLevel);
 			System.out.println("RootFile : " + rootFile);
 			firstStep(rootFile);
 			DefaultMutableTreeNode theRootNode = rootNode;
 			
-			JTree secondTree = new JTree(theRootNode);
+			
+			
+			fullListDir(rootFile);
+			fullListElement(rootFile);
+			
+			System.out.println("BEFORE : " + fullDir);
+			reverseM(fullDir);
+			System.out.println("AFTER : " + fullDir);
+			
+			for (File f : fullDir) {
+				fullNode.add(getNodeWithChildrenFromFile(f));
+			}
+			
+			
+			System.out.println(fullNode);
+			
+		//	ArrayList<File> tempFiles = new ArrayList<File>();
+			
+			
+			// Convertion of ArrayList to Array
+			File[] tabFiles = convertArrayListFileToArrayFile(fullDir);
+			
+			
+			DefaultMutableTreeNode[] tabNodes = convertArrayListNodeToArrayNode(fullNode);
+			
+			int size = tabFiles.length;
+			/*
+			// We loop with the amount of element inside fullDir
+			for (int i = 0; i <= size - 2; i++) {
+				// We check if the file at index i has siblings
+				if (getSiblingsCount(tabFiles[i]) > 0) {
+					// If it has, we get those into an Array
+					File[] tempFiles = getSiblings(tabFiles[i]);
+					// Then we create, for each element, a node that is added to the Array of nodes at the same index.
+					for (File f : tempFiles) {
+						DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(f.getName(), f.isDirectory());
+						if (tabFiles[i+1].getName() == tabFiles[i].getParentFile().getName()) {
+							tabNodes[i+1].add(tempNode);
+						}
+						if (tabFiles[i+1].getName() == tabFiles[i].getParentFile().getName()) {
+							tabNodes[i+1].add(tabNodes[i]);
+						}
+					}
+				} else if (tabFiles[i+1].getName() == tabFiles[i].getParentFile().getName()) {
+					tabNodes[i+1].add(tabNodes[i]);
+				}
+			}
+			*/
+			reverseM(fullElement);
+			// All elements from UserFiles in this Array
+			File[] allElements = convertArrayListFileToArrayFile(fullElement);
+			// For each file inside "all the elements"
+			for (File f : allElements) {	
+				// We get the siblings of f in an array
+				File[] recupSiblings = searchForSiblings(f, allElements);
+				// Check if the parent exists in the "parent processed"
+				if (getParentProcessed(f.getName()) != null) {
+					// We found it in the "parent processed", we use it.
+					parentNode = getParentProcessed(f.getName());
+				} else {
+					// It does not exist, we create it 
+					parentNode = new DefaultMutableTreeNode(f.getParentFile().getName(), f.getParentFile().isDirectory());
+				}
+				// For each of those siblings we create a node
+				for (File s : recupSiblings) {
+					// instanciate "actualNode" with the file "s"
+					actualNode = new DefaultMutableTreeNode(s.getName(), s.isDirectory());
+					
+					parentNode.add(actualNode);
+					if (s.isDirectory()) {
+						nodeProcessed.add(actualNode);
+					} else {
+						parentNodeProcessed.add(actualNode);
+					}
+					// Adds the "parentNode" to the "parentNodeProcessed" to keep track
+					parentNodeProcessed.add(parentNode);
+				}
+			}
+			
+			
+			
+			DefaultMutableTreeNode root = new DefaultMutableTreeNode(rootFile.getName(), true);
+			root.add(tabNodes[size-1]);
+			JTree secondTree = new JTree(root);
 			
 			this.add(secondTree);
-			
-			
-			
-			/*
-			System.out.println("BEFORE CONVERTION");
-			reverseM(contentLevel);
-			System.out.println("AFTER CONVERTION");
-			for (ArrayList<File> arrayNode : contentLevel) {
-				System.out.println(arrayNode);
-			}
-			
-			
-			ArrayList<DefaultMutableTreeNode> theRootNode = getTheNode(contentLevel);
-			
-			System.out.println("5555555555555555555555555555555555555555555555555555");
-			System.out.println(theRootNode);
-			*/
-			/*
-			DefaultMutableTreeNode[] arrayRootNode = convertArrayListNodeToArrayNode(theRootNode);
-			
-			for (int i = 0; i < arrayRootNode.length; i++) {
-				if (i >= arrayRootNode.length) {
-					
-				} else if (i < arrayRootNode.length -1) {
-					arrayRootNode[i+1].add(arrayRootNode[i]);
-				}
-
-			}
-			*/
-			/*
-			DefaultMutableTreeNode[] arrayRootNode = convertArrayListNodeToArrayNode(theRootNode);
-			for (int i = 0; i < arrayRootNode.length; i++) {
-				System.out.println("*** " + i + " ***" + arrayRootNode[i].getChildCount());
-				System.out.println("Element : " + arrayRootNode[i].toString());
-			}
-			
-			
-			arrayRootNode[arrayRootNode.length -1].add(arrayRootNode[arrayRootNode.length - 2]);
-			*/
-		//	JTree theTree = new JTree(arrayRootNode[arrayRootNode.length-1]);
-			
-		//	this.add(theTree);
-			
-
-			
-		//	convertArrayNodeToArrayListNode(tabNode).stream().forEach(System.out::println);
-		//	System.out.println("00000000000000000000000000000000000000000");
-		//	convertArrayNodeToArrayListNode(tableauNode).stream().forEach(System.out::println);
-
 		}
+		
+		
 
 //		arrayNodes = getNodesFromDir(rootFile);
 //		arrayNodes.stream().map(e -> e.toString()).forEach(System.out::println);
 
 	}
 	
-	
-	public File[] convertTabNodesToTabFiles(DefaultMutableTreeNode[] tabNode) {
-		ArrayList<File> arrayListFile = new ArrayList<File>();
-		for (DefaultMutableTreeNode n : tabNode) {
-			File f = new File(n.toString());
-			arrayListFile.add(f);
+	public boolean checkFileForProcessed(File file) {
+		for (File f : fileProcessed) {
+			if (f.getName() == file.getName()) {return true;}
 		}
-		File[] tabFile = convertArrayListFileToArrayFile(arrayListFile);
-		return tabFile;
+		return false;
 	}
 	
-//	public DefaultMutableTreeNode createRootNode(ArrayList<DefaultMutableTreeNode> arrayNodes) {
-//		
-//		for (DefaultMutableTreeNode n : arrayNodes){
-//			((DefaultMutableTreeNode) n.getParent()).add(n);
-//		}
-//		return arrayNodes.get(arrayNodes.size()-1);
-//	}
+	public boolean checkNodeForProcessed(File nodeFile) {
+		for (DefaultMutableTreeNode n : nodeProcessed) {
+			if (n.toString() == nodeFile.getName()) {return true;}
+		}
+		return false;
+	}
+	
+	public boolean checkParentNodeForProcessed(File parentNodeFile) {
+		for (DefaultMutableTreeNode n : parentNodeProcessed) {
+			if (n.toString() == parentNodeFile.getName()) {return true;}
+		}
+		return false;
+	}
+	
+	public DefaultMutableTreeNode getParentProcessed(String folderName) {
+		for (DefaultMutableTreeNode n : parentNodeProcessed) {
+			if (n.toString() == folderName) {
+				return n;
+			}
+		}
+		return null;
+	}
+	
+	// Give a File and an array File[] that contains every files,
+	// Check each of the elements to see if their parent is the same as the parent of the File given as param
+	// Returns the list of siblings (that has the same parent as File given as param).
+	public File[] searchForSiblings(File file, File[] files) {
+		// ArrayList creation that will contain the result
+		ArrayList<File> arraySiblings = new ArrayList<File>();
+		// For each file, compare the name of the parent to the name of the parent file passed as param.
+		for (File f : files) {
+			if (f.getParentFile().getName() == file.getParentFile().getName()) {
+				arraySiblings.add(f);
+			}
+		}
+		// Convert the ArrayList into an Array
+		File[] tabSiblings = convertArrayListFileToArrayFile(arraySiblings);
+		// Check if null or not
+		if (tabSiblings == null){
+			return null;
+		} else {
+			return tabSiblings;
+		}
+	}
+	
+	
+	
+	
+	public void analizeFile(File[] files, DefaultMutableTreeNode[] nodes) {
+		
+	}
+	
+
 	
 	public DefaultMutableTreeNode processArrayListFile(ArrayList<File> arrayFile) {
 		String nomNode = arrayFile.get(0).getParentFile().getName();
@@ -436,143 +382,218 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		return returnNode;
 	}
 	
-	// Gets the directories from "fichier", check if it contains other directories and if so, send those to secondStep(), if not, 
+	// Loop to get file without containing any folder then continue ->
+	// Gets the directories from "fichier", check if it contains other directories and if so, do the search again until there isn't
 	public void firstStep(File fichier) {
 		System.out.println("First Step : fichier -->  " + fichier);
 		File[] tabDir = getListDir(fichier);
 		// If tabDir is not null, it means there is at least one directory in "fichier"
 		if (tabDir != null) {
-			// For each of these directories, we send those to secondStep.
+			// For each of these directories, we relaunch the first Step until tabDir is null, so no more directories in "fichier"
 			for (File f : tabDir) {
-				secondStep(f);
+				firstStep(f);
+			}
+		} else {
+
+			// We get here, after searching inside the directories, when "fichier" does not contain any directory  -->  We send it to secondStep()
+			secondStep(fichier);
+		}
+	}
+	
+	
+	// We found a file without folder, we convert it and its children to a node, add the children to the parent then continue ->
+	// We get here when we found that "fichier" is at last position in hierarchy. 
+	// We need to create a node from "fichier" and from the list of files inside fichier, and the thirdStep should deal with the siblings of "fichier"
+	public void secondStep(File fichier) {
+		System.out.println("Second Step : fichier -->  " + fichier);
+		// The node that will be send to thirdStep
+		DefaultMutableTreeNode node = new DefaultMutableTreeNode(fichier.getName(), fichier.isDirectory());
+		// list the files from fichier
+		File[] tabFiles = fichier.listFiles();
+		// for each of those file we create a node that will be added to the node that will be send to thirdStep.
+		if (tabFiles != null) {
+			// Node creation for each element in "fichier"
+			for (File f : tabFiles) {
+				DefaultMutableTreeNode temp = new DefaultMutableTreeNode(f.getName(), f.isDirectory());
+				// Adds to the ArrayList of names, the name of the file that just has been processed into a node, to keep track.
+				nameFileProcessed.add(f.getName());
+				// Once every element inside "fichier" has been converted to node, we add those to the node created from "fichier"
+				node.add(temp);
+			}
+		}
+		// Here we have a node that represent the file "fichier", with all its sub-elements, now we send it to thirdStep to process the siblings.
+		thirdStep(fichier, node);
+	}
+	
+	// Look for siblings, if any, send them to the firstStep so they can be equals to the node we have, and then continue ->
+	// thirdStep is to process each siblings, the file and node passed as param are linked as the node is the representation of the file.
+	// So here we have a node that contains other nodes, these other nodes are in the nameFileProcessed, but not the node.
+	// ThirdStep should then check if the siblings have been processed and if not, process them
+	public void thirdStep(File fichier, DefaultMutableTreeNode node) {
+		System.out.println("Third Step : fichier -->  " + fichier);
+		// Check if the parent node already exists
+		if (checkForDirProcessed(fichier.getParentFile().getName()) == true) {
+			// -- TBD --
+		}
+		// Parent node creation that will contain the node + the siblings
+		DefaultMutableTreeNode parentNode = new DefaultMutableTreeNode(fichier.getParentFile().getName(), fichier.getParentFile().isDirectory());
+		// We check if the file ("fichier") has siblings directories
+		if (checkForSiblings(fichier) == true) {
+			// If it does, we get those in an array
+			File[] tempFiles = getSiblings(fichier);
+				// for each element of this array
+				for (File f : tempFiles) {
+					// We check if f has already been processed
+					if (checkForFileProcessed(f.getName())) {
+						// Already processed at this point  -> nothing happens - intended -
+						System.out.println(f.getName() + "  has already been processed -_-' ");
+					} else {
+						// Otherwise we check if f is either a file or an empty directory, if it is
+						if (f.isFile() || isEmptyDir(f)) {
+						// We process the name, create the Sibling Node and add it to the parent node.
+						nameFileProcessed.add(f.getName());
+						DefaultMutableTreeNode temp = new DefaultMutableTreeNode(f.getName(), f.isDirectory());
+						parentNode.add(temp);
+						} else {
+							// Else if we get here we assume that we are dealing with a directory that is not empty
+							// We send f to the firstStep to get to the last file of this directory then it passes to the secondStep
+							firstStep(f);
+						}
+					}
+				}
+		// We get here if the "fichier" has no siblings
+		} else {
+				// In this case there are no siblings, we can create the parentNode and add the node (from "fichier") to it.
+				nameFileProcessed.add(fichier.getName());
+				parentNode.add(node);
+		}
+		if (fichier.getName() == "UserFiles") {System.out.println("DONE"); fourthStep(fichier, node);}
+		thirdStep(fichier.getParentFile(), parentNode);
+	}
+			
+		//	fourthStep(fichier.getParentFile(), parentNode);
+	
+	
+	public DefaultMutableTreeNode fourthStep(File fichier, DefaultMutableTreeNode node) {
+		System.out.println("Fourth Step : fichier -->  " + fichier);
+		return node;
+	}
+	
+	// Get all the directories from "fichier" and list them into the fullDir arrayList
+	public void fullListDir(File fichier) {
+		File[] tabDir = getListDir(fichier);
+		// If tabDir is not null, it means there is at least one directory in "fichier"
+		if (tabDir != null) {
+			// For each of these directories, we add them into the fullDir arrayList
+			for (File f : tabDir) {
+				fullDir.add(f);
+			}
+			// Afterwards, for each of these directories, we relaunch the function to search for directories in each of them.
+			for (File f : tabDir) {
+				fullListDir(f);
 			}
 		} 
 	}
 	
 	
-	
-	// Looping the directories in order to find the one that's at last level in hierarchy
-	public void secondStep(File fichier) {
-		System.out.println("Second Step : fichier -->  " + fichier);
-		File[] tabDir = getListDir(fichier);
-		
-		ArrayList<File> arrayListDeFile = convertTabToArrayList(tabDir);
-		arrayListDeFile.stream().map(e -> "Inside tabDir : " + e.getName()).forEach(System.out::println);
-		
-		if (tabDir != null) {
-			for (File f : tabDir) {
-				secondStep(f);
-			}
-		} else {
-			// If we get here, "fichier" does not contain any directory
-			DefaultMutableTreeNode tempNode = thirdStep(fichier);
-			System.out.println("BEFORE : " + rootNode);
-			rootNode = fourthStep(fichier, tempNode);
-			System.out.println("AFTER : " + rootNode);
+	// Get all the elements from "fichier" and list them into the fullElement arrayList
+		public void fullListElement(File fichier) {
+			File[] tabElement = getList(fichier);
+			// If tabElement is not null, it means there is at least one Element in "fichier"
+			if (tabElement != null) {
+				// For each of these Elements, we add them into the fullElement arrayList
+				for (File f : tabElement) {
+					fullElement.add(f);
+				}
+				// Afterwards, for each of these elements, we relaunch the function to search for elements in each of them.
+				for (File f : tabElement) {
+					fullListElement(f);
+				}
+			} 
 		}
+	
+	// Returns the next directory that has not been processed, or null if there are no directories inside the array, or if all of the directories has been processed.
+	public File getNextDirectory(File[] tabFile) {
+		for (File f : tabFile) {
+			if (f.isDirectory() && checkForDirProcessed(f.getName()) == false) {
+				return f;
+			}
+		}
+		return null;
 	}
 	
-	// Third step is to create a node for each file inside the directory, then add these nodes to a parent node, then return the parent (that now contains the children).
-	public DefaultMutableTreeNode thirdStep(File fichier) {
-		System.out.println("Third Step : fichier -->  " + fichier);
-		// The node that will be returned
-		DefaultMutableTreeNode node = new DefaultMutableTreeNode(fichier.getName(), fichier.isDirectory());
-		// list the files from fichier
-		File[] tabFiles = fichier.listFiles();
-		// for each of those file we create a node that will be added to the node that will be returned.
+	public DefaultMutableTreeNode getNode(File dossier) {
+		// Node creation from "dossier"
+		DefaultMutableTreeNode node = new DefaultMutableTreeNode(dossier.getName(), dossier.isDirectory());
+		// get the list of element inside "dossier"
+		File[] tabFiles = dossier.listFiles();
+		// For each of these elements
 		for (File f : tabFiles) {
+			// We create a node that will be added to the first node created with "dossier"
 			DefaultMutableTreeNode temp = new DefaultMutableTreeNode(f.getName(), f.isDirectory());
 			node.add(temp);
 		}
 		return node;
 	}
 	
-	// At this point, we have a node that contains sub elements wich are not directories, and the file that represents the node.
-	public DefaultMutableTreeNode fourthStep(File fichier, DefaultMutableTreeNode node) {
-		System.out.println("Fourth Step : fichier -->  " + fichier);
-		// While we don't find the UserFiles in the loop
-		while (fichier.getName() != "UserFiles") {
-			// We check if the file ("fichier") has siblings directories
-			if (checkForSiblings(fichier) == true) {
-				File[] tempDir = getSiblings(fichier);
-				for (File f : tempDir) {
-					secondStep(f);
-				}
-			} else {
-				// In this case there are no siblings, we can create the parentNode and then add each element to it.
-				DefaultMutableTreeNode parentNode = new DefaultMutableTreeNode(fichier.getParentFile().getName(), fichier.getParentFile().isDirectory());
-				// We list the elements of the parent file, so we list the siblings element of "fichier"
-				File[] listFiles = fichier.getParentFile().listFiles();
-				// For each element inside the parent element, so for each siblings
-				for (File f : listFiles) {
-					// If we find that f is the representation of "fichier"
-					if (f.getName() == fichier.getName()) {
-						// We can add "node" (wich is the node that represents "fichier") to the parent node
-						parentNode.add(node);
-					} else {
-						// Otherwise, we create a new node for each element, thanks to the name and attributs of the file element that we are processing.
-						DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(f.getName(), f.isDirectory());
-						// And we add each of them to the parent node.
-						parentNode.add(tempNode);
-					}
-				}
-				
-				fourthStep(fichier.getParentFile(), parentNode);
+	
+	public boolean checkForFileProcessed(String nameFichier) {
+		for (String n : nameFileProcessed) {
+			if (n == nameFichier) {
+				return true;
 			}
 		}
-		return node;
+		return false;
+	}
+	
+	public boolean checkForDirProcessed(String nameFichier) {
+		for (String n : nameDirProcessed) {
+			if (n == nameFichier) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public boolean checkForSiblings(File fichier) {
 		File parentFile = fichier.getParentFile();
-		if (nbrDir(parentFile) > 1) {
-			return true;
-		} else {
+		File[] tabFile = parentFile.listFiles();
+		if (tabFile == null || tabFile.length <= 1) {
 			return false;
+		} else {
+			return true;
 		}
 	}
 	
 	public File[] getSiblings(File fichier) {
 		File parentFile = fichier.getParentFile();
 		String nomFichier = fichier.getName();
-		File[] listElement = getListDir(parentFile);
-		File[] listSiblings = new File[listElement.length -1];
-		for (int i = 0, k=0; i < listSiblings.length; i++) {
-			if (listElement[i].getName() != nomFichier) {
-				listSiblings[k] = listElement[i];
-				k++;
+		File[] listElement = parentFile.listFiles();
+		ArrayList<File> listSiblings =  new ArrayList<File>();
+		
+		for (File f : listElement) {
+			if (f.getName() != nomFichier) {
+				listSiblings.add(f);
 			}
 		}
-		return listSiblings;
+		return convertArrayListFileToArrayFile(listSiblings);
 	}
 	
 	
-			/*
-			// If it's a directory that contains children, we send back to firstStep()
-			if (f.isDirectory() && f.listFiles() != null) {
-				firstStep(f);
+	public int getSiblingsCount(File fichier) {
+		File parentFile = fichier.getParentFile();
+		String nomFichier = fichier.getName();
+		File[] listElement = parentFile.listFiles();
+		int nbrElement = 0;
+		for (File f : listElement) {
+			if (f.getName() != nomFichier) {
+				// -- nothing --
 			} else {
-				// Else it is not a directory, but we need to ckeck if its siblings has children, if one has we need to continue the search, so send back to firstStep()
-				if (checkLastSiblings(f) == false) {
-					File[] tabFile = getSiblings(f);
-					for (File e : tabFile) {
-						if (hasChild(e)) {
-							firstStep(e);
-						}
-					}
-				} else {
-				//	DefaultMutableTreeNode temp = new DefaultMutableTreeNode(f.getParentFile().getName(), f.getParentFile().isDirectory());
-					File[] tabFile = getSiblings(f);
-					for (File e : tabFile) {
-						DefaultMutableTreeNode node = new DefaultMutableTreeNode(e.getName(), false);
-				//		parentNode.add(node);
-					}
-			//		tempNode = parentNode;
-				}
+				nbrElement += 1;
 			}
-		} */
-
-	
+		}
+		return nbrElement;
+	}
 	
 	
 	public DefaultMutableTreeNode getNodeWithChildrenFromFile(File file) {
@@ -583,8 +604,6 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		}
 		return node;
 	}
-	
-	
 	
 	
 	// Return true if every siblings does not has children, false if at least one of them does
@@ -670,13 +689,14 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		list.add(value);
 	}
 	
+	// Same function that reverse a list but with only one
 	public static <T> void reverseM(List<T> liste) {
 		for (int i = 0; i <= liste.size()-1; i++) {
 			liste.add(liste.remove(liste.size()-1-i));
 		}
 	}
 	
-	
+	/*
 	public DefaultMutableTreeNode getNodes(ArrayList<File> contentArray) {
 		// Get the first element to obtain access to the parent file in order to define the parent node.
 		File fichier = contentArray.get(0);
@@ -693,6 +713,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		}
 		return theNode;
 	}
+	*/
 	
 	public String processAgain(File[] tabFile) {
 		if (tabFile != null) {
@@ -1023,16 +1044,27 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	// Convert an ArrayList<File> into an array File[]
 		public File[] convertArrayListFileToArrayFile(ArrayList<File> arrayFile){
 			if (arrayFile == null) {return null;}
-			return (arrayFile.toArray(new File[arrayFile.size()]));
+			int length = arrayFile.size();
+			File[] tabFile = new File[length];
+			for (int i = 0; i <= length - 1; i++) {
+				tabFile[i] = arrayFile.get(i);
+			}
+		return tabFile;
 		}
 		
 		public DefaultMutableTreeNode[] convertArrayListNodeToArrayNode(ArrayList<DefaultMutableTreeNode> arrayNodes){
-			return (arrayNodes.toArray(new DefaultMutableTreeNode[arrayNodes.size()]));
+			if (arrayNodes == null) {return null;}
+			int length = arrayNodes.size();
+			DefaultMutableTreeNode[] tabNodes = new DefaultMutableTreeNode[length];
+			for (int i = 0; i <= length - 1; i++) {
+				tabNodes[i] = arrayNodes.get(i);
+			}
+		return tabNodes;
 		}
 	
 	// To get an array of File[] that represents the content of the File given as param.
 	public File[] getList(File theDir) {
-		if (theDir != null) {
+		if (theDir != null && theDir.listFiles() != null) {
 			File[] lesFichiers = theDir.listFiles();
 			return lesFichiers;
 		} else {
