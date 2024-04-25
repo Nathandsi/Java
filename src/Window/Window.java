@@ -2,7 +2,6 @@ package Window;
 // Imports
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -11,11 +10,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -36,7 +31,6 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	// Properties
 	private static final long serialVersionUID = 1L;
 	private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();   //  Get screen size as Dimension object.
-	private JToolBar toolBar;
 	private ImageIcon icon;
 	private boolean isFullWindow;  // should have fullscreen or not
 	private boolean isUnDecorated;  //  should have (close, resize, reduce button) -> false / or should not -> true (will remove those buttons)
@@ -47,23 +41,15 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	private String rootPath = "C:\\Users\\ndurand\\eclipse-workspace\\JavaTraining\\src\\UserFiles";
 	private File rootFile = new File(rootPath);
 	public ArrayList<File> arrayFile = new ArrayList<File>();
-	private ArrayList<String> nameFiles = new ArrayList<>();
-	private ArrayList<String> pathFiles = new ArrayList<>();
-	private int nbrChildInDir;
 	public int levelCounter = 0;
 	
 	private DefaultMutableTreeNode tempNode;
 	private DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("UserFiles", true);
 	private ArrayList<DefaultMutableTreeNode> arrayNodes = new ArrayList<DefaultMutableTreeNode>();
-	private ArrayList<DefaultMutableTreeNode> tempNodeList = new ArrayList<DefaultMutableTreeNode>();
 	private JTree tree = new JTree(rootNode, true);
 	private File[] tabTempFiles;
-	private int tempNbr;
-	private DefaultMutableTreeNode containerNode;
-	private ArrayList<File> tableauFiles = new ArrayList<File>();
 	private ArrayList<File> orderedListFiles = new ArrayList<File>();
 	private ArrayList<ArrayList<File>> contentLevel = new ArrayList<ArrayList<File>>();
-	private File[] tempArrayFile;
 	private ArrayList<Integer> nbrFilesInLevel = new ArrayList<Integer>();
 	
 	public ArrayList<DefaultMutableTreeNode> tabNodes = new ArrayList<DefaultMutableTreeNode>();
@@ -101,6 +87,9 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	ArrayList<DefaultMutableTreeNode> parentArrayNode = new ArrayList<DefaultMutableTreeNode>();
 	ArrayList<File> parentArrayFile = new ArrayList<File>();
 	
+	public int level = 0;
+	public ArrayList<File> tabLevel = new ArrayList<File>();
+	
 	// Constructor
 	public Window(boolean isFullWindow, int w, int h, Color backColor, boolean isUnDecorated, String closeOperation) {
 		//   -----   Try to apply Look and Feel   -----
@@ -112,7 +101,6 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		// Counts the files whithin the root file (none recursive, only the root directory)
 		File[] tabTempFiles = rootFile.listFiles();
 		for (File tempFile : tabTempFiles) {
-			nbrChildInDir += 1;
 		}
 		// creates the root node 
 	//	rootNode = new DefaultMutableTreeNode(new NodeInfo(rootFile.getName(), rootFile.getPath(), rootFile.getParentFile().getName(), true, nbrChildInDir, false));
@@ -133,14 +121,13 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		this.setJMenuBar(createJMenuBar());
 		// JTree creation
 
-		tempNbr = rootNode.getChildCount();
 		tabTempFiles = rootFile.listFiles();
 		
 		if (rootFile.list() != null) {
 			
 			gettingLevels(rootFile);
 			
-			int treeSize = contentLevel.size();
+			contentLevel.size();
 			
 			ArrayList<DefaultMutableTreeNode> TabNode = new ArrayList<DefaultMutableTreeNode>();
 			
@@ -155,21 +142,9 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			}
 			DefaultMutableTreeNode[] TheTabNodes = convertArrayListNodeToArrayNode(TabNode);
 			rootNode = TheTabNodes[0];
-			
-			System.out.println("TheTabNodes 0 :------------------->" + ((DefaultMutableTreeNode) TheTabNodes[0].getFirstChild()).getUserObject());
-			System.out.println("TheTabNodes 1 :------------------->" + ((DefaultMutableTreeNode) TheTabNodes[1]).getUserObject());
-			contentLevel.get(0).stream().map(t -> "element :" + t.getName()).forEach(System.out::println);
-			System.out.println("contentLevel 0 :------------------->" + contentLevel.get(0));
-			System.out.println("Nombre elements level 1 :---------> " + contentLevel.get(1).size());
-			System.out.println("contentLevel 1 :------------------->" + ((DefaultMutableTreeNode) TheTabNodes[1]).getUserObject());
-			
 
 			System.out.println("RootFile : " + rootFile);
-			firstStep(rootFile);
-			DefaultMutableTreeNode theRootNode = rootNode;
-			
-			
-			
+		//	firstStep(rootFile);
 			fullListDir(rootFile);
 			fullListElement(rootFile);
 			
@@ -177,9 +152,34 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			reverseM(fullDir);
 			System.out.println("AFTER : " + fullDir);
 			
+			System.out.println(fullDir);
 			
 			// For each directory
 			for (File f : fullDir) {
+				
+				File[] siblingsFiles = getSiblings(f);
+				
+				// Case where f has siblings, we need to handle those here
+				if (siblingsFiles != null && siblingsFiles.length != 0) {
+					// For each sibling
+					for (File file : siblingsFiles) {
+						// Check if the sibling is a child and a parent at the same time
+						if (isChildAndParent(file)) {
+							
+						}
+					}
+				}
+				
+			}
+				
+				
+				
+				
+				
+				
+				
+				/*
+				
 				// Check if the node that represents the parent of f exists, if it does we instanciate into parentNode
 				if (checkForParent(f) == true) {
 					parentNode = getParentNode(f);
@@ -197,7 +197,10 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 				
 				// We put the parent of the file into an array of files to know if it exists in the array of nodes (both array should grow the same)
 				parentArrayFile.add(f.getParentFile());
-			}
+				
+				*/
+				
+			
 			
 			/*
 			// For each file we check if it has siblings and if so,
@@ -216,7 +219,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			}
 			*/
 			
-			System.out.println(parentArrayFile);
+
 			
 		//	ArrayList<File> tempFiles = new ArrayList<File>();
 			
@@ -225,9 +228,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			File[] tabFiles = convertArrayListFileToArrayFile(fullDir);
 			
 			
-			DefaultMutableTreeNode[] tabNodes = convertArrayListNodeToArrayNode(fullNode);
-			
-			int size = tabFiles.length;
+			convertArrayListNodeToArrayNode(fullNode);
 			
 			reverseM(fullElement);
 			// All elements from UserFiles in this Array
@@ -265,14 +266,62 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			
 			
 			
-			DefaultMutableTreeNode root = new DefaultMutableTreeNode(rootFile.getName(), true);
+			new DefaultMutableTreeNode(rootFile.getName(), rootFile.isDirectory());
 		//	root.add(tabNodes[size-1]);
-			JTree secondTree = new JTree(root);
+			JTree secondTree = new JTree(recursProcess(rootFile));
 			
 			this.add(secondTree);
 
 		}
 	}
+	
+	public DefaultMutableTreeNode recursProcess(File file) {
+		// Gets the list of element inside "file"
+		File[] tabFile = getList(file);
+		// If the list is not null
+		if (tabFile != null && tabFile.length != 0) {
+			//For each of these elements
+			for (File f : tabFile) {
+				//Check if there is a directory that contains at leat one element
+				if (f.isDirectory() && getList(f) != null) {
+					// We relaunch the function with this directory and we increment "level" to know we have passed a new directory to the function
+					level = level + 1;
+					recursProcess(f);
+				}
+			}
+			// We got out the "for each" loop that was looping elements inside "file"
+			// So we create the node corresponding to "file"
+			actualNode = getNodeWithChildrenFromFile(file);
+			parentNode = getNodeWithChildrenFromFile(file.getParentFile());
+
+			for (int i = level; i >= 0; i--) {
+				parentNode.add(actualNode);
+				file = file.getParentFile();
+				actualNode = parentNode;
+			}
+			
+			
+		}
+	return actualNode;
+	}
+	
+	// Returns an array of File[] that contains every files that share the same parent : parentFile.
+	public File[] getFilesWithSameParent(File[] tabFiles, File parentFile) {
+		ArrayList<File> returnFiles = new ArrayList<File>();
+		for (File f : tabFiles) {
+			if (f.getParentFile().getName().equals(parentFile.getName())){
+				returnFiles.add(f);
+			}
+		}
+		return convertArrayListFileToArrayFile(returnFiles);
+	}
+	
+	
+	public File[] getAllSiblings(File file) {
+		File[] tabSiblings = file.getParentFile().listFiles();
+		return tabSiblings;
+	}
+	
 	
 	// Checks if the file passed as param has already a parent node created for it.
 	public boolean checkForParent(File file) {
@@ -311,6 +360,8 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	}
 	
 	
+	
+	
 	// Takes a file in param, check if, inside the array of nodes, the name of the parent file exists also as a name of a node, if it does return it.
 	public DefaultMutableTreeNode getParentNode(File file) {
 		for (DefaultMutableTreeNode n : parentArrayNode) {
@@ -323,10 +374,24 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	
 	
 	public void test(File file) {
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode("UserFiles", true);
-		File[] tabElement = getList(file);
+		new DefaultMutableTreeNode("UserFiles", true);
+		getList(file);
 		
 		
+	}
+	
+	
+	
+	
+	
+	// Checks if the file passed as param has at least one child and is a child of a folder different than "UserFiles"
+	public boolean isChildAndParent(File file) {
+		if (getList(file) != null) {
+			if (file.getParentFile() != null && file.getParentFile().getName() != "UserFiles") {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	
@@ -581,6 +646,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	}
 	
 	
+	
 	// Get all the elements from "fichier" and list them into the fullElement arrayList
 		public void fullListElement(File fichier) {
 			File[] tabElement = getList(fichier);
@@ -682,12 +748,15 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	
 	
 	public DefaultMutableTreeNode getNodeWithChildrenFromFile(File file) {
-		DefaultMutableTreeNode node = new DefaultMutableTreeNode(file.getName(), file.isDirectory());
-		File[] tabFiles = getList(file);
-		for (File f : tabFiles) {
-			node.add(new DefaultMutableTreeNode(f.getName(), f.isDirectory()));
+		if (file != null) {
+			DefaultMutableTreeNode node = new DefaultMutableTreeNode(file.getName(), file.isDirectory());
+			File[] tabFiles = getList(file);
+			for (File f : tabFiles) {
+				node.add(new DefaultMutableTreeNode(f.getName(), f.isDirectory()));
+			}
+			return node;
 		}
-		return node;
+		return null;
 	}
 	
 	
@@ -796,10 +865,8 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	
 	
 	private JTree orderingNodes(ArrayList<File> listFiles) {
-		int level = 0;
 		JTree tree = new JTree();
 		File[] tabFiles = listFiles.toArray(new File[listFiles.size()]);
-		DefaultMutableTreeNode[] tabNodes;
 		File[] otherTabFiles = new File[listFiles.size()];
 		int j = 0;
 		for (int i = tabFiles.length - 1; i >= 0 ; i--) {
@@ -836,7 +903,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	
 	
 	public DefaultMutableTreeNode processDirChildren(File theDirectory) {
-		int nbrFiles = nbrFilesInDir(theDirectory);
+		nbrFilesInDir(theDirectory);
 		int nbrDir = nbrDir(theDirectory);
 		
 		// The case where the directory does not contain another directory.
@@ -857,8 +924,6 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	public File exploreDirectory(File fichier, boolean recursivity) {
 		
 		File initialFile = fichier;
-		boolean recurs = recursivity;
-		
 		int nbrChild = 0;
 		
 		File[] tabFiles = initialFile.listFiles();
@@ -1332,7 +1397,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	}
 	// Creation of JTree from UserFiles
 	private JTree createJTreeMenu() {
-		DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode();
+		new DefaultMutableTreeNode();
 		
 		
 		return new JTree();
