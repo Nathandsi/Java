@@ -80,7 +80,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	public boolean multiRecurs = false;
 	
 	// These 3 nodes are there to be replaced by the process...
-	public DefaultMutableTreeNode childNode = new DefaultMutableTreeNode();
+	public DefaultMutableTreeNode childNode = null;
 	public DefaultMutableTreeNode actualNode = new DefaultMutableTreeNode();
 	public DefaultMutableTreeNode parentNode = new DefaultMutableTreeNode();
 	
@@ -90,6 +90,10 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	public int level = 0;
 	public ArrayList<File> tabLevel = new ArrayList<File>();
 	
+	// ArrayList and Array of StepNode, each StepNode represent a folder node with a name and an array of nodes representing the children
+	public ArrayList<StepNode> arrayStepNode = new ArrayList<StepNode>();
+	public StepNode[] tabStepNode;
+	
 	// Constructor
 	public Window(boolean isFullWindow, int w, int h, Color backColor, boolean isUnDecorated, String closeOperation) {
 		//   -----   Try to apply Look and Feel   -----
@@ -97,13 +101,6 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			System.out.println("Unsupported Look and Feel");
 			e.printStackTrace();
 		}
-		
-		// Counts the files whithin the root file (none recursive, only the root directory)
-		File[] tabTempFiles = rootFile.listFiles();
-		for (File tempFile : tabTempFiles) {
-		}
-		// creates the root node 
-	//	rootNode = new DefaultMutableTreeNode(new NodeInfo(rootFile.getName(), rootFile.getPath(), rootFile.getParentFile().getName(), true, nbrChildInDir, false));
 		
 		// Sets properties
 		setFullWindow(isFullWindow);
@@ -114,35 +111,33 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		setCloseOperation(closeOperation);
 		checkSize();
 		defineCloseOperation();
+		
 		// Defines contentPane
 		JPanel contentPane = (JPanel)this.getContentPane();
 		contentPane.setLayout(new BorderLayout());
 		// MenuBar creation
 		this.setJMenuBar(createJMenuBar());
 		// JTree creation
-
-		tabTempFiles = rootFile.listFiles();
 		
-		if (rootFile.list() != null) {
+		if (rootFile.listFiles() != null) {
 			
 			gettingLevels(rootFile);
 			
-			contentLevel.size();
-			
 			ArrayList<DefaultMutableTreeNode> TabNode = new ArrayList<DefaultMutableTreeNode>();
 			
-	//		reverseM(contentLevel);
+			reverseM(contentLevel);
 
 			for (ArrayList<File> tabArrayFile : contentLevel) {
 				// for each ArrayList<File>, we send it to processArrayListFile and get the node that contains the other nodes (converted files) from the ArrayList<File>
 				DefaultMutableTreeNode node = processArrayListFile(tabArrayFile);
 				// Adds this node to an ArrayList<DefaultMutableTreeNode>, so that ArrayList contains each nodes that contains their previous ArrayList<File> converted to nodes.
 				TabNode.add(node);
-				
 			}
 			DefaultMutableTreeNode[] TheTabNodes = convertArrayListNodeToArrayNode(TabNode);
 			rootNode = TheTabNodes[0];
 
+			/*
+			
 			System.out.println("RootFile : " + rootFile);
 		//	firstStep(rootFile);
 			fullListDir(rootFile);
@@ -173,7 +168,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			}
 				
 				
-				
+			*/
 				
 				
 				
@@ -220,13 +215,10 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			*/
 			
 
-			
-		//	ArrayList<File> tempFiles = new ArrayList<File>();
-			
+			/*
 			
 			// Convertion of ArrayList to Array
 			File[] tabFiles = convertArrayListFileToArrayFile(fullDir);
-			
 			
 			convertArrayListNodeToArrayNode(fullNode);
 			
@@ -264,11 +256,44 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 				}
 			}
 			
+			*/
+			
+			// For each ArrayList<File> inside the contentLevel
+			for (ArrayList<File> f : contentLevel) {
+				// Creates an ArrayList of nodes that will be converted and used to create the stepNode
+				ArrayList<DefaultMutableTreeNode> arrayNode = new ArrayList<DefaultMutableTreeNode>();
+				// The name of the parent of each file from this ArrayList "f" that will be used to create the stepNode
+				String nameParent = f.get(0).getParentFile().getName();
+					// For each file present in the ArrayList "f"
+					for (File file : f) {
+						// We create a node that we put in the arrayNode
+						arrayNode.add(new DefaultMutableTreeNode(file.getName(), file.isDirectory()));
+					}
+				// We create a stepNode with the name of the parent and an array of nodes representing the children
+				StepNode stepNode = new StepNode(nameParent, convertArrayListNodeToArrayNode(arrayNode));
+				// We add this stepNode to the ArrayList<StepNode>
+				arrayStepNode.add(stepNode);
+			}
+			
+			for (StepNode s : arrayStepNode) {
+				System.out.println("Name : " + s.getName());
+				actualNode = new DefaultMutableTreeNode(s.getName(), true);
+				for (DefaultMutableTreeNode node : s.getContainer()) {
+					actualNode.add(node);
+				}
+				
+				if (childNode == null) {
+					childNode = actualNode;
+				} else {
+				//	actualNode.add(childNode);
+					childNode = actualNode;
+				}
+				
+				
+			}
 			
 			
-			new DefaultMutableTreeNode(rootFile.getName(), rootFile.isDirectory());
-		//	root.add(tabNodes[size-1]);
-			JTree secondTree = new JTree(recursProcess(rootFile));
+			JTree secondTree = new JTree(actualNode);
 			
 			this.add(secondTree);
 
@@ -278,7 +303,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	public DefaultMutableTreeNode recursProcess(File file) {
 		// Gets the list of element inside "file"
 		File[] tabFile = getList(file);
-		// If the list is not null
+		// If the list is not null and if it's length is not equal to 0
 		if (tabFile != null && tabFile.length != 0) {
 			//For each of these elements
 			for (File f : tabFile) {
@@ -299,8 +324,6 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 				file = file.getParentFile();
 				actualNode = parentNode;
 			}
-			
-			
 		}
 	return actualNode;
 	}
@@ -1088,16 +1111,19 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		File[] listDir = getListDir(directory);
 		
 		ArrayList<File> arrayListDeDir = new ArrayList<File>();
-		for (File f : listDir) {
-			arrayListDeDir.add(f);
-		}
-	//	arrayListDeDir.stream().map(e -> e.getName()).forEach(System.out::println);
-
+		if (listDir != null) {
 			for (File f : listDir) {
-				System.out.println(f.getName());				
+				arrayListDeDir.add(f);
+			}
+		}
+		
+	//	arrayListDeDir.stream().map(e -> e.getName()).forEach(System.out::println);
+		if (listDir != null) {
+			for (File f : listDir) {
+			//	System.out.println(f.getName());				
 				processLevel(f);
 			}
-		
+		}
 //		for (ArrayList<File> e : contentLevel) {
 //			e.stream().map(f -> f.getName()).forEach(System.out::println);
 //		}
@@ -1180,9 +1206,11 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		
 		public DefaultMutableTreeNode[] convertArrayListNodeToArrayNode(ArrayList<DefaultMutableTreeNode> arrayNodes){
 			if (arrayNodes == null) {return null;}
+			
 			int length = arrayNodes.size();
 			DefaultMutableTreeNode[] tabNodes = new DefaultMutableTreeNode[length];
-			for (int i = 0; i <= length - 1; i++) {
+			
+			for (int i = 0; i < length; i++) {
 				tabNodes[i] = arrayNodes.get(i);
 			}
 		return tabNodes;
@@ -1431,8 +1459,11 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		JOptionPane.showMessageDialog(this, "The user will be able to change the color of the theme");
 	}
 	private void menuStyleListener(ActionEvent e) {
+
 		JOptionPane.showMessageDialog(this, "The user will be able to change the style of the theme");
 	}
+	
+	
 	// toolBar creation
 	/*
 	private JToolBar createToolBar(String nameToolBar, int hauteur, int largeur) {
