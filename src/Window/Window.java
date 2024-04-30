@@ -94,6 +94,8 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	public ArrayList<StepNode> arrayStepNode = new ArrayList<StepNode>();
 	public StepNode[] tabStepNode;
 	
+	public ArrayList<DefaultMutableTreeNode> nodesToProcess = new ArrayList<DefaultMutableTreeNode>();
+	
 	// Constructor
 	public Window(boolean isFullWindow, int w, int h, Color backColor, boolean isUnDecorated, String closeOperation) {
 		//   -----   Try to apply Look and Feel   -----
@@ -120,6 +122,10 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		// JTree creation
 		
 		if (rootFile.listFiles() != null) {
+			
+			fullListDir(rootFile);
+			
+			reverseM(fullDir);
 			
 			gettingLevels(rootFile);
 			
@@ -276,29 +282,87 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			}
 			
 			for (StepNode s : arrayStepNode) {
-				System.out.println("Name : " + s.getName());
 				actualNode = new DefaultMutableTreeNode(s.getName(), true);
 				for (DefaultMutableTreeNode node : s.getContainer()) {
 					actualNode.add(node);
 				}
 				
-				if (childNode == null) {
-					childNode = actualNode;
-				} else {
-				//	actualNode.add(childNode);
-					childNode = actualNode;
-				}
-				
-				
+				nodesToProcess.add(actualNode);
+
 			}
+			
+			nodesToProcess.stream().map(e -> "Node To Process : " + e.toString()).forEach(System.out::println);
+			fullDir.stream().map(e -> "File to Help : " + e.toString()).forEach(System.out::println);
 			
 			
 			JTree secondTree = new JTree(actualNode);
-			
 			this.add(secondTree);
 
 		}
 	}
+	
+	
+	public DefaultMutableTreeNode getTheRootNode(ArrayList<DefaultMutableTreeNode> arrayNode, ArrayList<File> arrayFile) {
+		
+		ArrayList<File> recupFile = new ArrayList<File>();
+		ArrayList<DefaultMutableTreeNode> recupNode = new ArrayList<DefaultMutableTreeNode>();
+		ArrayList<File> compareFile = new ArrayList<File>();
+		DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode();
+		DefaultMutableTreeNode savedNode = new DefaultMutableTreeNode();
+		
+		// For each file inside the arrayFile passed as param
+		for (File f : arrayFile) {
+			// We get the list of files that has the same parent of "f"
+			recupFile = getFilesOfParent(f, arrayFile);
+			// For each file inside the "recupFile", so each file that share the same parent
+			for (File fi : recupFile) {
+				// We search each node from the "arrayNode" passed as param
+				for (DefaultMutableTreeNode n : arrayNode) {
+					// And we compare if the file has the same name of the node
+					if (fi.getName().equals(n.toString())) {
+						// If it has, we save those nodes into the "recupNode" ArrayList
+						recupNode.add(n);
+					}
+				}
+			}
+			// Saves the parent node into a temp node then adds every child node to it.
+			tempNode = getSameNodeAsFile(recupFile.get(0).getParentFile(), arrayNode);
+			for (DefaultMutableTreeNode node : recupNode) {
+				tempNode.add(node);
+			}
+			// Saves the "tempNode" that contains children into the "savedNode"
+			savedNode = tempNode;
+			
+		//	---> I need to know how to process this tempNode in order to continue the function and it returns one node that contains everything we need.
+			// HashMap linking File and Node should be useful.
+			
+		}
+		return null;
+	}
+	
+	public DefaultMutableTreeNode getSameNodeAsFile(File file, ArrayList<DefaultMutableTreeNode> arrayNode) {
+		DefaultMutableTreeNode returnNode = null;
+		for (DefaultMutableTreeNode n : arrayNode) {
+			if (file.getName().equals(n.toString())) {
+				returnNode = n;
+			}
+		}
+		return returnNode;
+	}
+	
+	
+	
+	// Give a File parent and an ArrayList<File> to get an ArrayList<File> that contains every File that has the same parent.
+	public ArrayList<File> getFilesOfParent(File parent, ArrayList<File> checkList) {
+		ArrayList<File> result = new ArrayList<File>();
+		for (File f : checkList) {
+			if (f.getParentFile().getName() == parent.getName()) {
+				result.add(f);
+			}
+		}
+		return result;
+	}
+	
 	
 	public DefaultMutableTreeNode recursProcess(File file) {
 		// Gets the list of element inside "file"
