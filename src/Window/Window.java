@@ -143,19 +143,21 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			rootNode = TheTabNodes[0];
 
 			// Represents each node from each file
-			HashMap<String, DefaultMutableTreeNode> fileNodeMap = new HashMap<>();
+			HashMap<String, DefaultMutableTreeNode> stringNodeMap = new HashMap<>();
 			
+			// Represents each node from each file
 			HashMap<String, File> stringFileMap = new HashMap<>();
 			
 			// Represents each parent node that contains its children
 			HashMap<DefaultMutableTreeNode, DefaultMutableTreeNode[]> parentNodeMap = new HashMap<>();
 			// Represents each parent file that contains its children
 			HashMap<File, File[]> parentFileMap = new HashMap<>();
-			// First String is the name of the parent, Second String is the name of the element
-			HashMap<String, HashMap<String, DefaultMutableTreeNode>> parentMap = new HashMap<>();
 			
 			// First String is the name of the parent, Second String is the name of the element
-			HashMap<String, HashMap<String, File>> filesMap = new HashMap<>();
+			HashMap<String, HashMap<String, DefaultMutableTreeNode>> bigNodeMap = new HashMap<>();
+			
+			// First String is the name of the parent, Second String is the name of the element
+			HashMap<String, HashMap<String, File>> bigFileMap = new HashMap<>();
 			
 			// For each ArrayList<File> inside the contentLevel
 			for (ArrayList<File> f : contentLevel) {
@@ -187,55 +189,131 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	//		nodesToProcess.stream().map(e -> "Node To Process : " + e.toString()).forEach(System.out::println);
 	//		fullDir.stream().map(e -> "File to Help : " + e.toString()).forEach(System.out::println);
 			
+			// Simple approach :
+			ArrayList<DefaultMutableTreeNode> nodeList = new ArrayList<DefaultMutableTreeNode>();
+			ArrayList<File> fileList = new ArrayList<File>();
+			fullListElement(rootFile);
+			// File and Node are stored in an ArrayList for each of them
+			for (File fichier : fullElement) {
+				if (fichier.isDirectory()) {
+					fileList.add(fichier);
+					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(fichier.getName(), true);
+					nodeList.add(tempNode);
+				} else {
+					fileList.add(fichier);
+					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(fichier.getName(), false);
+					nodeList.add(tempNode);
+				}
+			}
+			
+			
+			HashMap<String, ArrayList<String>> parentWithChildren = new HashMap<String, ArrayList<String>>();
+			HashMap<String, ArrayList<String>> nodesWithChildren = new HashMap<String, ArrayList<String>>();
+			
+			for (File f : fileList) {
+				ArrayList<String> sameParent = new ArrayList<String>();
+			//	ArrayList<DefaultMutableTreeNode> childNodes = new ArrayList<DefaultMutableTreeNode>();
+				String fName = f.getName();
+			//	DefaultMutableTreeNode nodeParent = new DefaultMutableTreeNode(f.getName(), true);
+				
+				for (File file : fileList) {
+					if (file.getName().equals(fName)) {
+						// -- We compare 2 identical files --
+					} else if (file.getParentFile().getName().equals(fName)) {
+						sameParent.add(file.getName());
+					}
+				}
+
+		//		System.out.println("Parent Name : " + fName + " |  And its children : " + sameParent);
+		//		System.out.println("Parent Name : " + nodeParent + " |  And its children : " + childNodes);
+				parentWithChildren.put(fName, sameParent);
+				
+			}
+	
+			for (File n : fileList) {
+				ArrayList<String> childNodes = new ArrayList<String>();
+				String nodeName = n.getName();
+				
+				for (File node : fileList) {
+					if (node.getName().equals(nodeName)) {
+						// -- We compare 2 identical files --
+					} else if (node.getParentFile().getName().equals(nodeName)) {
+						childNodes.add(node.getName());
+					}
+				}
+
+				
+		//		System.out.println("Parent Name : " + fName + " |  And its children : " + sameParent);
+		//		System.out.println("Parent Name : " + nodeParent + " |  And its children : " + childNodes);
+				
+				nodesWithChildren.put(nodeName, childNodes);
+			}
+			
+			What I Need to do for the next time : delete the node part that is alike the file part (wich works already) then create the node part from the file part result.
+			
+			parentWithChildren.forEach((key, value) -> {System.out.println("FILE : KEY : " + key + " ||  VALUE : " + value);});
+			nodesWithChildren.forEach((key, value) -> {System.out.println("NODE : KEY : " + key + " ||  VALUE : " + value);});
+			
+			
+			
 			// For each file 
 			for (File f : fullDir) {
 				// If it has children
 				if (f.listFiles() != null) {
 					// We get those in an array
 					File[] tabFiles = f.listFiles();
-					// We create an ArrayList of nodes that will be consistent to "tabFiles"
-					ArrayList<DefaultMutableTreeNode> arrayNodes = new ArrayList<DefaultMutableTreeNode>();
-					// Creation of the parent node that represents "f"
-					DefaultMutableTreeNode parentNode = new DefaultMutableTreeNode(f.getName(), f.isDirectory());
+
 					// For each of those children
 					for (File file : tabFiles) {
 						// We create a node that represent the child
-						DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(file.getName(), file.isDirectory());
-						// We add it into the arrayNodes
-						arrayNodes.add(tempNode);
-						// We create an entry in the HashMap, with the file name and a node that represents the file
-						fileNodeMap.put(file.getName(),  tempNode);
+						DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(file.getName(), file.isDirectory());
+						// We create an entry in the "stringNodeMap", with the "file" name and a node that represents the same "file"
+						stringNodeMap.put(file.getName(),  childNode);
+						// We create an entry in the "stringFileMap", with the "file" name and the "file" itself
 						stringFileMap.put(file.getName(), file);
-						parentNode.add(tempNode);
-						
-						parentMap.put(f.getName(), fileNodeMap);
-						filesMap.put(f.getName(), stringFileMap);
-						
 					}
 					
-					// We add the file "f" as key and "tabFiles" as value inside the parentFile HashMap
-					parentFileMap.put(f, tabFiles);
-
-					// We add the (parent node containing the children) as key, and the (arrayList of nodes representing the children, converted into an array) as value into the parentNode HashMap
-					parentNodeMap.put(parentNode, convertArrayListNodeToArrayNode(arrayNodes));
+					// We add an new entry in the bigNodeMap with the name of the "f" (as String) and "stringNodeMap" that has the name of the child ("file") and a node representing "file", so the child.
+					// So for the String, String, Node --> first is the name of the parent, second is the name of the child, Node is the childNode
+					bigNodeMap.put(f.getName(), stringNodeMap);
+					// We add an entry in the bigFileMap with the name of "f" (as String) and the "stringFileMap" that has the name of "file" (as String) and the "file" (as File)
+					// So for the String, String, File --> first is the name of the parent, second is the name of the child, File is the child file.
+					bigFileMap.put(f.getName(), stringFileMap);
+					
 				// Else it means that "f" does not have any children
 				} else {
 					// So we create a tempNode from "f"
 					DefaultMutableTreeNode tempNode = new DefaultMutableTreeNode(f.getName(), f.isDirectory());
-					// We add the entry into the HashMap -> with "f" and its node representation.
-					fileNodeMap.put(f.getName(),  tempNode);
-					stringFileMap.put(f.getName(), f);
+					// We add a new entry in the "bigNodeMap" with the name of "f" (as String) and "null" as HashMap parameter because the HashMap represents the children (none existent here).
+					bigNodeMap.put(f.getName(), null);
+					// We add a new entry in the "bigFileMap" with the name of "f" (as String) and "null" as HashMap parameter because the HashMap represents the children (none existent here).
+					bigFileMap.put(f.getName(),  null);
 				}
 				
 			}
 
-		System.out.println(filesMap.get("Script").get("Python").listFiles().length);
+			
+			// fullElement.stream().map(e -> e.getName()).forEach(System.out::println);
+
 			
 			JTree secondTree = new JTree(actualNode);
 			this.add(secondTree);
 
 		}
 	}
+	
+	
+	// Give a file and a list of files, get the children of the file in an ArrayList
+	public ArrayList<File> getChildrenFromList(File parent, ArrayList<File> listFiles) {
+		ArrayList<File> children = new ArrayList<File>();
+		for (File f : listFiles) {
+			if (f.getParentFile().getName() == parent.getName()) {
+				children.add(f);
+			}
+		}
+		return children;
+	}
+	
 	
 	
 	public ArrayList<File> getListOfFiles(File file){
@@ -675,7 +753,6 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			}
 		} 
 	}
-	
 	
 	
 	// Get all the elements from "fichier" and list them into the fullElement arrayList
