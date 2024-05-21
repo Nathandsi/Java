@@ -11,6 +11,7 @@ import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -96,6 +97,12 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	
 	public ArrayList<DefaultMutableTreeNode> nodesToProcess = new ArrayList<DefaultMutableTreeNode>();
 	
+	
+	// Represents each parent file that contains its children
+	HashMap<File, ArrayList<File>> parentFileMap = new HashMap<>();
+	
+	
+	
 	// Constructor
 	public Window(boolean isFullWindow, int w, int h, Color backColor, boolean isUnDecorated, String closeOperation) {
 		//   -----   Try to apply Look and Feel   -----
@@ -150,14 +157,17 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			
 			// Represents each parent node that contains its children
 			HashMap<DefaultMutableTreeNode, DefaultMutableTreeNode[]> parentNodeMap = new HashMap<>();
-			// Represents each parent file that contains its children
-			HashMap<File, File[]> parentFileMap = new HashMap<>();
+			
+
 			
 			// First String is the name of the parent, Second String is the name of the element
 			HashMap<String, HashMap<String, DefaultMutableTreeNode>> bigNodeMap = new HashMap<>();
 			
 			// First String is the name of the parent, Second String is the name of the element
 			HashMap<String, HashMap<String, File>> bigFileMap = new HashMap<>();
+			
+			// First the file, Second the node
+			HashMap<File, DefaultMutableTreeNode> filesNodes = new HashMap<>();
 			
 			// For each ArrayList<File> inside the contentLevel
 			for (ArrayList<File> f : contentLevel) {
@@ -209,9 +219,13 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			
 			HashMap<String, ArrayList<String>> parentWithChildren = new HashMap<String, ArrayList<String>>();
 			HashMap<String, ArrayList<String>> nodesWithChildren = new HashMap<String, ArrayList<String>>();
+			HashMap<String, ArrayList<DefaultMutableTreeNode>> realNodes = new HashMap<String, ArrayList<DefaultMutableTreeNode>>();
 			
+			
+			// For each file 
 			for (File f : fileList) {
 				ArrayList<String> sameParent = new ArrayList<String>();
+				ArrayList<File> sameParentFile = new ArrayList<File>();
 			//	ArrayList<DefaultMutableTreeNode> childNodes = new ArrayList<DefaultMutableTreeNode>();
 				String fName = f.getName();
 			//	DefaultMutableTreeNode nodeParent = new DefaultMutableTreeNode(f.getName(), true);
@@ -221,24 +235,29 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 						// -- We compare 2 identical files --
 					} else if (file.getParentFile().getName().equals(fName)) {
 						sameParent.add(file.getName());
+						sameParentFile.add(file);
 					}
 				}
 
 		//		System.out.println("Parent Name : " + fName + " |  And its children : " + sameParent);
 		//		System.out.println("Parent Name : " + nodeParent + " |  And its children : " + childNodes);
 				parentWithChildren.put(fName, sameParent);
+				parentFileMap.put(f, sameParentFile);
 				
 			}
 	
 			for (File n : fileList) {
 				ArrayList<String> childNodes = new ArrayList<String>();
+				ArrayList<DefaultMutableTreeNode> realNode = new ArrayList<DefaultMutableTreeNode>();
 				String nodeName = n.getName();
+
 				
 				for (File node : fileList) {
 					if (node.getName().equals(nodeName)) {
 						// -- We compare 2 identical files --
 					} else if (node.getParentFile().getName().equals(nodeName)) {
 						childNodes.add(node.getName());
+						realNode.add(new DefaultMutableTreeNode(node.getName(), node.isDirectory()));
 					}
 				}
 
@@ -246,14 +265,16 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		//		System.out.println("Parent Name : " + fName + " |  And its children : " + sameParent);
 		//		System.out.println("Parent Name : " + nodeParent + " |  And its children : " + childNodes);
 				
+				realNodes.put(nodeName, realNode);
 				nodesWithChildren.put(nodeName, childNodes);
 			}
 			
-			What I Need to do for the next time : delete the node part that is alike the file part (wich works already) then create the node part from the file part result.
-			
+		//	What I Need to do for the next time : delete the node part that is alike the file part (wich works already) then create the node part from the file part result.
+			System.out.println("fullElement : ");
+			fullElement.stream().map(e->e.toString()).forEach(System.out::println);
 			parentWithChildren.forEach((key, value) -> {System.out.println("FILE : KEY : " + key + " ||  VALUE : " + value);});
 			nodesWithChildren.forEach((key, value) -> {System.out.println("NODE : KEY : " + key + " ||  VALUE : " + value);});
-			
+			realNodes.forEach((key, value) -> {System.out.println("REAL NODE : KEY : " + key + " ||  VALUE : " + value);});
 			
 			
 			// For each file 
@@ -302,6 +323,38 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		}
 	}
 	
+	
+	
+	public HashSet<File> processList(HashMap<File, ArrayList<File>> parentWithChildren, HashMap<String, ArrayList<DefaultMutableTreeNode>> nodeWithChildren){
+		
+		HashMap<File, ArrayList<File>> tempParentWithChildren = parentWithChildren;
+		HashMap<String, ArrayList<DefaultMutableTreeNode>> tempRealNodes = nodeWithChildren;
+		
+		ArrayList<File> tempFiles = new ArrayList<File>();
+		HashSet<File> finalFiles = new HashSet<File>();
+		
+		parentWithChildren.forEach((key, value) -> {
+			for (File f : value) {
+				if (f.isDirectory()) {
+					
+				} else {
+					tempFiles.add(f);
+				}
+			}
+		});
+		
+		for (File file : tempFiles) {
+			File tFile = file;
+			String parentName = file.getParentFile().getName();
+			for (File fi : tempFiles) {
+				if (fi.getName().equals(parentName)) {
+					finalFiles.add(fi);
+				}
+			}
+		}
+		
+		return null;
+	}
 	
 	// Give a file and a list of files, get the children of the file in an ArrayList
 	public ArrayList<File> getChildrenFromList(File parent, ArrayList<File> listFiles) {
