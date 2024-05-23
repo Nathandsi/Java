@@ -323,7 +323,28 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		}
 	}
 	
+	/*
+	 *  boolean isChildAndParent(File file) -> return "true" if the file passed as param is a child and a parent at the same time.
+	 *  ArrayList<File> getChildrenFromList(File parent, ArrayList<File> listFiles) -> Give a file and a list of files, get the children of the file, from the list of files, in an ArrayList
+	 *  ArrayList<File> getListOfFiles(File file) -> Give a File and gets an ArrayList of its children (or null if there aren't any)
+	 *  ArrayList<File> getFilesOfParent(File parent, ArrayList<File> checkList) -> Give a File parent and an ArrayList<File> to get an ArrayList<File> that contains every File that has the same parent.
+	 *  File[] getFilesWithSameParent(File[] tabFiles, File parentFile) -> Returns an array of File[] that contains every files that share the same parent : parentFile.
+	 *  File[] getAllSiblings(File file) -> Give a File and get an array of files sharing the same parent
+	 *  boolean checkForSiblings(File fichier) -> Give a File and returns true if the file as at least one sibling, false otherwise.
+	 *  File[] getSiblings(File fichier) -> Give a File and returns its siblings as an array (returns the list of children from the parent minus the file itself as an array).
+	 *  int getSiblingsCount(File fichier) -> int getSiblingsCount(File fichier) 
+	 *  
+	 */
 	
+	
+	public HashMap<File, ArrayList<File>> processListFiles(ArrayList<File> fullElement){
+		reverseM(fullElement);
+		ArrayList<File> fullElementReverse = fullElement;
+		
+		
+		
+		return null;
+	}
 	
 	public HashSet<File> processList(HashMap<File, ArrayList<File>> parentWithChildren, HashMap<String, ArrayList<DefaultMutableTreeNode>> nodeWithChildren){
 		
@@ -347,7 +368,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			File tFile = file;
 			String parentName = file.getParentFile().getName();
 			for (File fi : tempFiles) {
-				if (fi.getName().equals(parentName)) {
+				if (fi.getParentFile().getName().equals(parentName)) {
 					finalFiles.add(fi);
 				}
 			}
@@ -356,11 +377,11 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		return null;
 	}
 	
-	// Give a file and a list of files, get the children of the file in an ArrayList
+	// Give a file and a list of files, get the children of the file, from the list of files, in an ArrayList
 	public ArrayList<File> getChildrenFromList(File parent, ArrayList<File> listFiles) {
 		ArrayList<File> children = new ArrayList<File>();
 		for (File f : listFiles) {
-			if (f.getParentFile().getName() == parent.getName()) {
+			if (f.getParentFile().getName().equals(parent.getName())) {
 				children.add(f);
 			}
 		}
@@ -368,7 +389,21 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	}
 	
 	
+	// Checks if the file passed as param has at least one child and is a child of a folder different than "UserFiles"
+	public boolean isChildAndParent(File file) {
+		// If the file passed as param has at least one child
+		if (getList(file) != null) {
+			// If the parent File of "file" is not null AND the name of the parent of the "file" passed as param is not "UserFiles"
+			// So if "file" is a folder inside another folder that is not named "UserFiles".
+			if (file.getParentFile() != null && !file.getParentFile().getName().equals("UserFiles")) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
+	
+	// Give a File and gets an ArrayList of its children (or null if there aren't any)
 	public ArrayList<File> getListOfFiles(File file){
 		if (file.listFiles() != null) {
 			return convertTabToArrayList(file.listFiles());
@@ -431,7 +466,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	public ArrayList<File> getFilesOfParent(File parent, ArrayList<File> checkList) {
 		ArrayList<File> result = new ArrayList<File>();
 		for (File f : checkList) {
-			if (f.getParentFile().getName() == parent.getName()) {
+			if (f.getParentFile().getName().equals(parent.getName())) {
 				result.add(f);
 			}
 		}
@@ -478,8 +513,9 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		return convertArrayListFileToArrayFile(returnFiles);
 	}
 	
-	
+	// Give a File and get an array of files sharing the same parent
 	public File[] getAllSiblings(File file) {
+		// Gets the list of files from the parent of the file given as param
 		File[] tabSiblings = file.getParentFile().listFiles();
 		return tabSiblings;
 	}
@@ -521,10 +557,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		return convertArrayListNodeToArrayNode(tabNodes);
 	}
 	
-	
-	
-	
-	// Takes a file in param, check if, inside the array of nodes, the name of the parent file exists also as a name of a node, if it does return it.
+	// Give a file as param, check if, inside the array of nodes, the name of the parent file exists also as a name of a node, if it does return it.
 	public DefaultMutableTreeNode getParentNode(File file) {
 		for (DefaultMutableTreeNode n : parentArrayNode) {
 			if (file.getParentFile().getName().equals(n.toString())) {
@@ -543,18 +576,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	}
 	
 	
-	
-	
-	
-	// Checks if the file passed as param has at least one child and is a child of a folder different than "UserFiles"
-	public boolean isChildAndParent(File file) {
-		if (getList(file) != null) {
-			if (file.getParentFile() != null && file.getParentFile().getName() != "UserFiles") {
-				return true;
-			}
-		}
-		return false;
-	}
+
 	
 	
 	public boolean checkFileForProcessed(File file) {
@@ -624,12 +646,6 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		
 	}
 	
-	
-	
-	
-	public void analizeFile(File[] files, DefaultMutableTreeNode[] nodes) {
-		
-	}
 	
 
 	
@@ -867,6 +883,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		return false;
 	}
 	
+	// Give a File and returns true if the file as at least one sibling, false otherwise.
 	public boolean checkForSiblings(File fichier) {
 		File parentFile = fichier.getParentFile();
 		File[] tabFile = parentFile.listFiles();
@@ -877,6 +894,8 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		}
 	}
 	
+	
+	// Give a File and returns its siblings as an array (returns the list of children from the parent minus the file itself as an array).
 	public File[] getSiblings(File fichier) {
 		File parentFile = fichier.getParentFile();
 		String nomFichier = fichier.getName();
@@ -891,14 +910,14 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		return convertArrayListFileToArrayFile(listSiblings);
 	}
 	
-	
+	// Give a File as param and gets the number of siblings of this file (number of files that has the same parent).
 	public int getSiblingsCount(File fichier) {
 		File parentFile = fichier.getParentFile();
 		String nomFichier = fichier.getName();
 		File[] listElement = parentFile.listFiles();
 		int nbrElement = 0;
 		for (File f : listElement) {
-			if (!f.getName().equals(nomFichier)) {
+			if (f.getName().equals(nomFichier)) {
 				// -- nothing --
 			} else {
 				nbrElement += 1;
