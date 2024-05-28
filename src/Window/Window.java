@@ -10,6 +10,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -100,6 +101,8 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	
 	// Represents each parent file that contains its children
 	HashMap<File, ArrayList<File>> parentFileMap = new HashMap<>();
+	
+	
 	
 	
 	
@@ -221,6 +224,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			HashMap<String, ArrayList<String>> nodesWithChildren = new HashMap<String, ArrayList<String>>();
 			HashMap<String, ArrayList<DefaultMutableTreeNode>> realNodes = new HashMap<String, ArrayList<DefaultMutableTreeNode>>();
 			
+			/*
 			
 			// For each file 
 			for (File f : fileList) {
@@ -269,14 +273,17 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 				nodesWithChildren.put(nodeName, childNodes);
 			}
 			
+			
+		*/
+			
 		//	What I Need to do for the next time : delete the node part that is alike the file part (wich works already) then create the node part from the file part result.
-			System.out.println("fullElement : ");
-			fullElement.stream().map(e->e.toString()).forEach(System.out::println);
-			parentWithChildren.forEach((key, value) -> {System.out.println("FILE : KEY : " + key + " ||  VALUE : " + value);});
-			nodesWithChildren.forEach((key, value) -> {System.out.println("NODE : KEY : " + key + " ||  VALUE : " + value);});
-			realNodes.forEach((key, value) -> {System.out.println("REAL NODE : KEY : " + key + " ||  VALUE : " + value);});
+	//		System.out.println("fullElement : ");
+	//		fullElement.stream().map(e->e.toString()).forEach(System.out::println);
+	//		parentWithChildren.forEach((key, value) -> {System.out.println("FILE : KEY : " + key + " ||  VALUE : " + value);});
+	//		nodesWithChildren.forEach((key, value) -> {System.out.println("NODE : KEY : " + key + " ||  VALUE : " + value);});
+	//		realNodes.forEach((key, value) -> {System.out.println("REAL NODE : KEY : " + key + " ||  VALUE : " + value);});
 			
-			
+	/*		
 			// For each file 
 			for (File f : fullDir) {
 				// If it has children
@@ -313,9 +320,92 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 				
 			}
 
+		*/	
 			
-			// fullElement.stream().map(e -> e.getName()).forEach(System.out::println);
+			
+			
+			
+			
+			// To get the files that are only at last position.
+			ArrayList<File> lastFiles = new ArrayList<File>();
+			// For each file in fullElement, saves the "last" files in the ArrayList "lastFiles"
+			for (File f : fullElement) {
+				if (!hasChild(f)) {
+					lastFiles.add(f);
+				}
+			}
+			
+			
+		//	fullElement.stream().map(e -> e.getName()).forEach(System.out::println);
 
+			System.out.println("**********************************");
+			
+			ArrayList<File> tempHierarchyFile = new ArrayList<File>();
+			HashMap<File, ArrayList<File>> lastToHierarchyFile = new HashMap<File, ArrayList<File>>();
+			
+			lastFiles.stream().map(e -> e.getName()).forEach(System.out::println);
+			
+			// First the parent, Second the child
+			HashMap<File, File> parentChildMap = new HashMap<File, File>();
+			
+			for (File f : lastFiles) {
+				parentChildMap.put(f.getParentFile(), f);
+			}
+			
+			parentChildMap.forEach((key, value)->{
+				//	System.out.println("PARENT : " + key.getName() + " ENFANT : " + value.getName());
+				});
+			
+			
+			
+			// For each file that is "Last"
+			for (File f : lastFiles) {
+				// Temp file creation
+				File tempFile = f;
+				// While the parent of tempFile is not equal to "UserFiles"
+				while (!tempFile.getParentFile().getName().equals("UserFiles")) {
+					// If the great parent of tempFile is equal to "UserFiles"
+					if (tempFile.getParentFile().getParentFile().getName().equals("UserFiles")) {
+						// Adds the tempFile to the tempHierarchyFile ArrayList
+						tempHierarchyFile.add(tempFile);
+						// Adds the tempFile's parent to the tempHierarchyFile ArrayList
+						tempHierarchyFile.add(tempFile.getParentFile());
+					}
+					// Adds the tempFile to the tempHierarchyFile ArrayList
+					tempHierarchyFile.add(tempFile);
+					// Updates the tempFile to its parent.
+					tempFile = tempFile.getParentFile();
+				}
+				
+				System.out.println("The file LAST : " + f);
+				tempHierarchyFile.stream().map(e->e.getName()).forEach(System.out::println);
+				
+			}
+			
+			/*
+			if (f.getParentFile().getName().equals("UserFiles")) {
+				lastToHierarchyFile.put(f, tempHierarchyFile);
+			} else {
+				tempHierarchyFile.add(f);
+			}
+			*/
+			/*
+			 * 
+			 * while (isAtTop == false) {
+					if (f.getParentFile().getName().equals("UserFiles")) {
+						isAtTop = true;
+					}
+					tempHierarchyFile.add(f);
+				}
+			
+			*/
+			
+			HashMap<File, ArrayList<File>> mapElement = new HashMap<File, ArrayList<File>>();
+			mapElement = processListFiles(fullElement);
+			
+			mapElement.forEach((key, value)->{
+			//	System.out.println("PARENT : " + key.getName() + " ENFANTS : " + value);
+			});
 			
 			JTree secondTree = new JTree(actualNode);
 			this.add(secondTree);
@@ -326,13 +416,17 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	/*
 	 *  boolean isChildAndParent(File file) -> return "true" if the file passed as param is a child and a parent at the same time.
 	 *  ArrayList<File> getChildrenFromList(File parent, ArrayList<File> listFiles) -> Give a file and a list of files, get the children of the file, from the list of files, in an ArrayList
-	 *  ArrayList<File> getListOfFiles(File file) -> Give a File and gets an ArrayList of its children (or null if there aren't any)
+	 *  ArrayList<File> getChildrenOfFile(File file) -> Give a File and gets an ArrayList of its children (or null if there aren't any)
 	 *  ArrayList<File> getFilesOfParent(File parent, ArrayList<File> checkList) -> Give a File parent and an ArrayList<File> to get an ArrayList<File> that contains every File that has the same parent.
 	 *  File[] getFilesWithSameParent(File[] tabFiles, File parentFile) -> Returns an array of File[] that contains every files that share the same parent : parentFile.
 	 *  File[] getAllSiblings(File file) -> Give a File and get an array of files sharing the same parent
 	 *  boolean checkForSiblings(File fichier) -> Give a File and returns true if the file as at least one sibling, false otherwise.
 	 *  File[] getSiblings(File fichier) -> Give a File and returns its siblings as an array (returns the list of children from the parent minus the file itself as an array).
 	 *  int getSiblingsCount(File fichier) -> int getSiblingsCount(File fichier) 
+	 *  boolean hasChild(File file) -> returns True if and only if the file has at least one child. False otherwise.
+	 *  
+	 *  
+	 *  
 	 *  
 	 */
 	
@@ -340,11 +434,20 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	public HashMap<File, ArrayList<File>> processListFiles(ArrayList<File> fullElement){
 		reverseM(fullElement);
 		ArrayList<File> fullElementReverse = fullElement;
+		HashMap<File, ArrayList<File>> returnMap = new HashMap<File, ArrayList<File>>();
 		
+		for (File f : fullElementReverse) {
+			File parentFile = f.getParentFile();
+			File[] tabFile = parentFile.listFiles();
+			ArrayList<File> arrayFile = convertTabToArrayList(tabFile);
+			returnMap.put(parentFile, arrayFile);
+			
+		}
 		
-		
-		return null;
+		return returnMap;
 	}
+	
+	/*
 	
 	public HashSet<File> processList(HashMap<File, ArrayList<File>> parentWithChildren, HashMap<String, ArrayList<DefaultMutableTreeNode>> nodeWithChildren){
 		
@@ -377,6 +480,8 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		return null;
 	}
 	
+	*/
+	
 	// Give a file and a list of files, get the children of the file, from the list of files, in an ArrayList
 	public ArrayList<File> getChildrenFromList(File parent, ArrayList<File> listFiles) {
 		ArrayList<File> children = new ArrayList<File>();
@@ -404,7 +509,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	
 	
 	// Give a File and gets an ArrayList of its children (or null if there aren't any)
-	public ArrayList<File> getListOfFiles(File file){
+	public ArrayList<File> getChildrenOfFile(File file){
 		if (file.listFiles() != null) {
 			return convertTabToArrayList(file.listFiles());
 		} else {
@@ -534,7 +639,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	
 	
 	
-	public int nbrSiblingsOfDir(File file) {
+	public int nbrSiblingsOfFile(File file) {
 		int nbr = 0;
 		String nameParent = file.getParentFile().getName();
 		for (File f : parentArrayFile) {
