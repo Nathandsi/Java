@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.stream.StreamSupport;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -219,10 +221,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 				}
 			}
 			
-			
-			HashMap<String, ArrayList<String>> parentWithChildren = new HashMap<String, ArrayList<String>>();
-			HashMap<String, ArrayList<String>> nodesWithChildren = new HashMap<String, ArrayList<String>>();
-			HashMap<String, ArrayList<DefaultMutableTreeNode>> realNodes = new HashMap<String, ArrayList<DefaultMutableTreeNode>>();
+
 			
 			/*
 			
@@ -322,28 +321,111 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 
 		*/	
 			
+			// Represents the parent with an ArrayList of its children
+			HashMap<File,ArrayList<File>> parentFileWithChildren = new HashMap<>();
+			// Represents the temp parent with an ArrayList of its children
+			HashMap<File,ArrayList<File>> tempParentFileWithChildren = new HashMap<>();
 			
+			// Represents the parent with an ArrayList of its children
+			HashMap<File,HashSet<File>> parentFileWithHChildren = new HashMap<>();
+			// Represents the temp parent with an ArrayList of its children
+			HashMap<File,ArrayList<File>> tempParentFileWithHChildren = new HashMap<>();
 			
-			
+			HashSet<File> tempSet = new HashSet<>();
 			
 			// To get the files that are only at last position.
 			ArrayList<File> lastFiles = new ArrayList<File>();
 			// For each file in fullElement, saves the "last" files in the ArrayList "lastFiles"
 			for (File f : fullElement) {
-				if (!hasChild(f)) {
+				if (hasChild(f) == false) {
 					lastFiles.add(f);
 				}
 			}
 			
+			int nbrLastFiles = nbrFiles(convertArrayListFileToArrayFile(lastFiles));
 			
 		//	fullElement.stream().map(e -> e.getName()).forEach(System.out::println);
-
+		//	System.out.println(nbrFiles(convertArrayListFileToArrayFile(lastFiles)));
 			System.out.println("**********************************");
+			
+		//	fullElement.stream().map(e->e.getName()).forEach(System.out::println);
+			
+			// First Parent, Second Children
+			HashMap<File, ArrayList<File>> mapAll = new HashMap<>();
+			
+			// First the name of the actual element, Second is the number of element inside the first file
+			HashMap<String, Integer> mapAllNbr = new HashMap<>();
+			
+			// First Parent, Second children
+			HashMap<File, File[]> mapParentChild = new HashMap<>();
+			
+			
+			// test
+			HashMap<File, ArrayList<File>> aaF = new HashMap<>();
+			
+			for (File f : fullElement) {
+				File parent = f.getParentFile();
+				File[] tabChildren = f.getParentFile().listFiles();
+				mapAll.put(parent,convertTabToArrayList(tabChildren));
+				
+				
+				
+				mapAllNbr.put(f.getName(),  nbrFiles(f));
+				mapParentChild.put(f.getParentFile(), f.getParentFile().listFiles());
+			}
+			
+			//System.out.println(mapAll);
+			mapAll.forEach((key,value) -> {
+			//	System.out.println("KEY : " + key.getName() + "  VALUE : " + value);
+			});
+			mapAllNbr.forEach((key,value) -> {
+				System.out.println("Name of the Element : " + key + "  Number of elements inside the element : " + value);
+			});
+			mapParentChild.forEach((key,value) -> {
+			//	System.out.println("Name of the Parent : " + key.getName() + "  Array of Children : " + value);
+				ArrayList<File> aF = convertTabToArrayList(value);
+				aaF.put(key, aF);
+			});
+			
+			
+			aaF.forEach((key,value) -> {
+				System.out.print("Name of the Parent : " + key.getName() + "  Array of Children : ");
+				value.stream().map(e->e.getName() + " | ").forEach(System.out::print);
+				System.out.println(" ");
+			});
+			
+			
+
+			
+			
+			ArrayList<File> tempH = new ArrayList<>();
+			
+			for (File f : lastFiles) {
+				File[] tempTabFile = getAllSiblings(f);
+				for (File fi : tempTabFile) {
+				//	System.out.println("*******" + fi.getName() + "***********");
+					tempH.add(fi);
+				}
+			//	System.out.println("tempH : " + tempH);
+				tempParentFileWithHChildren.put(f.getParentFile(), tempH);
+			//	System.out.println(tempParentFileWithHChildren);
+				tempH.clear();
+				
+				tempParentFileWithHChildren.forEach((key,value) -> {
+					tempSet.addAll(value);
+					parentFileWithHChildren.put(key, tempSet);
+				});
+			}
+			
+			parentFileWithHChildren.forEach((key,value) -> {
+			//	System.out.println("KEY : " + key.getName());
+			//	value.stream().map(e->e.getName()).forEach(System.out::println);
+			});
 			
 			ArrayList<File> tempHierarchyFile = new ArrayList<File>();
 			HashMap<File, ArrayList<File>> lastToHierarchyFile = new HashMap<File, ArrayList<File>>();
 			
-			lastFiles.stream().map(e -> e.getName()).forEach(System.out::println);
+		//	lastFiles.stream().map(e -> e.getName()).forEach(System.out::println);
 			
 			// First the parent, Second the child
 			HashMap<File, File> parentChildMap = new HashMap<File, File>();
@@ -377,8 +459,8 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 					tempFile = tempFile.getParentFile();
 				}
 				
-				System.out.println("The file LAST : " + f);
-				tempHierarchyFile.stream().map(e->e.getName()).forEach(System.out::println);
+			//	System.out.println("The file LAST : " + f);
+			//	tempHierarchyFile.stream().map(e->e.getName()).forEach(System.out::println);
 				
 			}
 			
@@ -1510,6 +1592,22 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		
 		return nbr;
 	}
+	
+	
+	// To get the number of files present in the File given as param.
+		// CAUTION : if the File[] f got from the listFiles() method is null, we cannot use the f.length as it would raise a NullPointerException
+		public int nbrFiles(File[] file) {
+			int nbr = 0;
+			File[] tabFile = file;
+			if (tabFile != null) {
+				if (tabFile.length == 0){return 0;}
+				for (File f : tabFile) {
+					nbr = nbr +1;
+				}
+			}
+			
+			return nbr;
+		}
 	
 	private ArrayList<DefaultMutableTreeNode> getListNodesFromDir(File file) {
     ArrayList<DefaultMutableTreeNode> nodeList = new ArrayList<DefaultMutableTreeNode>();
