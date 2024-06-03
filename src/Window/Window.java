@@ -354,11 +354,12 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			HashMap<File, ArrayList<File>> mapAll = new HashMap<>();
 			
 			// First the name of the actual element, Second is the number of element inside the first file
-			HashMap<String, Integer> mapAllNbr = new HashMap<>();
+			HashMap<File, Integer> mapAllNbr = new HashMap<>();
 			
 			// First Parent, Second children
 			HashMap<File, File[]> mapParentChild = new HashMap<>();
 			
+			HashMap<String,ArrayList<File>> nameNodes = new HashMap<>();
 			
 			// test
 			HashMap<File, ArrayList<File>> aaF = new HashMap<>();
@@ -370,7 +371,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 				
 				
 				
-				mapAllNbr.put(f.getName(),  nbrFiles(f));
+				mapAllNbr.put(f,  nbrFiles(f));
 				mapParentChild.put(f.getParentFile(), f.getParentFile().listFiles());
 			}
 			
@@ -379,7 +380,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			//	System.out.println("KEY : " + key.getName() + "  VALUE : " + value);
 			});
 			mapAllNbr.forEach((key,value) -> {
-				System.out.println("Name of the Element : " + key + "  Number of elements inside the element : " + value);
+				System.out.println("Name of the Element : " + key.getName() + "  Number of elements inside the element : " + value);
 			});
 			mapParentChild.forEach((key,value) -> {
 			//	System.out.println("Name of the Parent : " + key.getName() + "  Array of Children : " + value);
@@ -394,9 +395,38 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 				System.out.println(" ");
 			});
 			
+			aaF.forEach((key,value) -> {
+				nameNodes.put(key.getName(), value);
+			});
+			
+			// To save all elements into nodes in an arrayList
+			ArrayList<DefaultMutableTreeNode> allNodes = new ArrayList<DefaultMutableTreeNode>();
+			
+			for (File f : fullElement) {
+				allNodes.add(new DefaultMutableTreeNode(f.getName(),f.isDirectory()));
+			}
+			
 			
 
+			// For each nodes (that we got from converting each elements)
+			for (DefaultMutableTreeNode n : allNodes) {
+				// Temp ArrayList<File> creation that will get the files representing the children from the HashMap nameNodes (String - Children Files)
+				ArrayList<File> tempFiles = nameNodes.get(n.toString());
+				// If tempFiles is null it means that, the String representation of the file that has the same name as the node, does not represents a file that has children.
+				if (tempFiles != null) {
+					for (File f : tempFiles) {
+						// Adds children representing files, to the node n
+						n.add(new DefaultMutableTreeNode(f.getName(),f.isDirectory()));
+					}
+				}
+				
+			}
 			
+			System.out.println(allNodes);
+			
+			for (DefaultMutableTreeNode n : allNodes) {
+				System.out.println("NAME : " + n.toString() + "  NOMBRE ELEMENTS : " + n.getChildCount());
+			}
 			
 			ArrayList<File> tempH = new ArrayList<>();
 			
