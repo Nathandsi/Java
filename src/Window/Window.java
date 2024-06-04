@@ -402,6 +402,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			// To save all elements into nodes in an arrayList
 			ArrayList<DefaultMutableTreeNode> allNodes = new ArrayList<DefaultMutableTreeNode>();
 			
+			// Creation of all nodes
 			for (File f : fullElement) {
 				allNodes.add(new DefaultMutableTreeNode(f.getName(),f.isDirectory()));
 			}
@@ -417,10 +418,16 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 					for (File f : tempFiles) {
 						// Adds children representing files, to the node n
 						n.add(new DefaultMutableTreeNode(f.getName(),f.isDirectory()));
+						allNodes.remove((DefaultMutableTreeNode)f.getName());  // casting impossible -> need to create a relation between the nameNodes and allNodes.
+						
+						nameNodes.remove(n.toString());
+						
 					}
 				}
-				
 			}
+			
+			
+			
 			
 			System.out.println(allNodes);
 			
