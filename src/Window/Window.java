@@ -401,6 +401,9 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			
 			// To save all elements into nodes in an arrayList
 			ArrayList<DefaultMutableTreeNode> allNodes = new ArrayList<DefaultMutableTreeNode>();
+			ArrayList<DefaultMutableTreeNode> processedNodes = new ArrayList<DefaultMutableTreeNode>();
+
+			
 			
 			// Creation of all nodes
 			for (File f : fullElement) {
@@ -416,20 +419,71 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 				// If tempFiles is null it means that, the String representation of the file that has the same name as the node, does not represents a file that has children.
 				if (tempFiles != null) {
 					for (File f : tempFiles) {
+						DefaultMutableTreeNode temps = new DefaultMutableTreeNode(f.getName(),f.isDirectory());
 						// Adds children representing files, to the node n
-						n.add(new DefaultMutableTreeNode(f.getName(),f.isDirectory()));
-						allNodes.remove((DefaultMutableTreeNode)f.getName());  // casting impossible -> need to create a relation between the nameNodes and allNodes.
+						n.add(temps);
+						processedNodes.add(n);
 						
-						nameNodes.remove(n.toString());
-						
+					}
+					// removes the String representation of n inside nameNodes, wich removes the arrayList<File> that contains the children, as n should already has those children nodes into it.
+				//	nameNodes.remove(n.toString());
+				}
+			}
+			
+			System.out.println("!!!!!" + nameNodes.toString());
+			
+			DefaultMutableTreeNode RootN = new DefaultMutableTreeNode("UserFiles", true);
+			DefaultMutableTreeNode tempN;
+
+			
+			ArrayList<File> newArrayListFile = nameNodes.get("UserFiles");
+			ArrayList<File> tempArrayListFile;
+			int tempNbr = 0;
+			
+			// for each file inside "UserFiles", so for each children of "UserFiles"
+			for (File f : newArrayListFile) {
+				RootN.add(new DefaultMutableTreeNode(f.getName(),f.isDirectory()));
+				tempNbr += 1;
+			}
+			
+			// This is something to work for...
+			for (int i = 0; i == tempNbr; i++) {
+				if (RootN.getChildAt(i).getAllowsChildren() == true) {
+					newArrayListFile = nameNodes.get(RootN.getChildAt(i).toString());
+					tempN = (DefaultMutableTreeNode) RootN.getChildAt(i);
+					for (File fil : newArrayListFile) {
+						tempN.add(new DefaultMutableTreeNode(fil.getName(),fil.isDirectory()));
+					}
+					RootN.insert(tempN, i);
+				}
+			}
+			
+			for (File f : newArrayListFile) {
+				tempArrayListFile = nameNodes.get(f.getName());
+				if (tempArrayListFile != null) {
+					for (File fi : tempArrayListFile) {
+			//			RootN.getC
+					}
+				}
+			}
+			
+			for (File f : newArrayListFile) {
+				for (DefaultMutableTreeNode n : allNodes) {
+					if (f.getName().equals(n.toString())) {
+						RootN.add(n);
 					}
 				}
 			}
 			
 			
 			
-			
-			System.out.println(allNodes);
+			nameNodes.forEach((key,value)->{
+				for (DefaultMutableTreeNode n : allNodes) {
+					if (key.equals(n.toString())) {
+					//	n.add()
+					}
+				}
+			});
 			
 			for (DefaultMutableTreeNode n : allNodes) {
 				System.out.println("NAME : " + n.toString() + "  NOMBRE ELEMENTS : " + n.getChildCount());
@@ -526,7 +580,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			//	System.out.println("PARENT : " + key.getName() + " ENFANTS : " + value);
 			});
 			
-			JTree secondTree = new JTree(actualNode);
+			JTree secondTree = new JTree(RootN);
 			this.add(secondTree);
 
 		}
