@@ -73,7 +73,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	// Only parent nodes that have been processed
 	public ArrayList<DefaultMutableTreeNode> parentNodeProcessed = new ArrayList<DefaultMutableTreeNode>();
 	
-	
+	public File[] Racine;
 	
 	// Represents the list of every directory inside userFiles
 	public ArrayList<File> fullDir = new ArrayList<File>();
@@ -321,6 +321,8 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 
 		*/	
 			
+			/*
+			
 			// Represents the parent with an ArrayList of its children
 			HashMap<File,ArrayList<File>> parentFileWithChildren = new HashMap<>();
 			// Represents the temp parent with an ArrayList of its children
@@ -549,11 +551,9 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 					// Updates the tempFile to its parent.
 					tempFile = tempFile.getParentFile();
 				}
-				
-			//	System.out.println("The file LAST : " + f);
-			//	tempHierarchyFile.stream().map(e->e.getName()).forEach(System.out::println);
-				
 			}
+			
+			*/
 			
 			/*
 			if (f.getParentFile().getName().equals("UserFiles")) {
@@ -580,11 +580,86 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			//	System.out.println("PARENT : " + key.getName() + " ENFANTS : " + value);
 			});
 			
-			JTree secondTree = new JTree(RootN);
+	//		fullElement.stream().map(e->e.getName()).forEach(System.out::println);
+			
+			reverseM(fullElement);
+			
+			Racine = rootFile.listFiles();
+			
+			for (File f : Racine) {
+				System.out.println(f + " IS DIRECTORY ? -> " + f.list() );
+			}
+			
+			listRoot();
+			
+			JTree secondTree = new JTree(Racine);
 			this.add(secondTree);
 
 		}
 	}
+	
+	private DefaultMutableTreeNode racine;
+	
+	private void listRoot() {
+		racine = new DefaultMutableTreeNode("UserFiles");
+		// For each element inside fullElement
+		for (File file : Racine) {
+			// Create a node with the absolutePath param of the file
+			DefaultMutableTreeNode lecteur = new DefaultMutableTreeNode(file.getName());
+			try {
+				// for each file, from the list of files got from the file currently processed by the previous forEach
+				for(File nom : file.listFiles()) {
+					// Creates a node with the name of the file and adds "\\" to the end
+					DefaultMutableTreeNode node = new DefaultMutableTreeNode(nom.getName()+"\\");
+					// Adds to the "lecteur" node, the result returned by the function listFile(nom,node) 
+					// with "nom" being the file actually being processed by the actual forEach, and "node" the node we just created with the name of the file "nom" -> (getName())  
+					lecteur.add(this.listFile(nom,node));
+				}
+				// catch if we cannot do a forEach on the file because it does not have children -> avoiding NullPointerException
+			} catch (NullPointerException e) {}
+			// Then we add the "lecteur" node to the "racine" node
+			racine.add(lecteur);
+		}
+	}
+	
+	
+	private DefaultMutableTreeNode listFile(File file, DefaultMutableTreeNode node) {
+		// If the file is not a directory
+		if (file.isFile()) {
+			// We return a DefaultMutableTreeNode wich has the name of the file
+			return new DefaultMutableTreeNode(file.getName());
+		} else {
+			// Else we get the children in an array
+			File[] list = file.listFiles();
+			// If list is null, it means that it is a directory, but does not have any children
+			if(list == null) {
+				// So just has a normal file, we return a DefaultMutableTreeNode wich has the name of the file
+				return new DefaultMutableTreeNode(file.getName());
+			}
+			// For each file in the list, so each child of the file passed as param (if it has any)
+			for(File nom : list) {
+					// We declare a subNode
+					DefaultMutableTreeNode subNode;
+					// If "nom" is a directory, "nom" is the actual, being processed file of the forEach, so "nom" is one of the files listed from the parent "file" passed as param
+					if(nom.isDirectory()) {
+						// We instanciate "subNode" with the name of the file "nom" and we add a "\\" to it.
+						subNode = new DefaultMutableTreeNode(nom.getName()+"\\");
+						// Here we are adding, to the "node" passed as param, the result of listFile("nom", "subNode"), 
+						// so here we relaunch the same function but this time with the subFile and subNode
+						node.add(this.listFile(nom, subNode));
+					} else {
+						// Else we instanciate subNode with the name of "nom" so the name of the subFile
+						subNode = new DefaultMutableTreeNode(nom.getName());
+					}
+					// Finally, we add the subNode to the node
+					node.add(subNode);
+			}
+			return node;
+		}
+	}
+	
+	
+	
 	
 	/*
 	 *  boolean isChildAndParent(File file) -> return "true" if the file passed as param is a child and a parent at the same time.
