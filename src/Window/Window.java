@@ -592,7 +592,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			
 			listRoot();
 			
-			JTree secondTree = new JTree(Racine);
+			JTree secondTree = new JTree(racine);
 			this.add(secondTree);
 
 		}
@@ -605,7 +605,7 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 		// For each element inside fullElement
 		for (File file : Racine) {
 			// Create a node with the absolutePath param of the file
-			DefaultMutableTreeNode lecteur = new DefaultMutableTreeNode(file.getName());
+			DefaultMutableTreeNode lecteur = new DefaultMutableTreeNode(file.getAbsolutePath());
 			try {
 				// for each file, from the list of files got from the file currently processed by the previous forEach
 				for(File nom : file.listFiles()) {
