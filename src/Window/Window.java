@@ -12,6 +12,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -24,7 +25,6 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
 
 // Class
 public class Window extends JFrame implements ActionListener, WindowListener, ProcessFile{
@@ -89,10 +89,10 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	// Constructor
 	public Window(boolean isFullWindow, int w, int h, Color backColor, boolean isUnDecorated, String closeOperation) {
 		//   -----   Try to apply Look and Feel   -----
-		try {UIManager.setLookAndFeel(new NimbusLookAndFeel());} catch (UnsupportedLookAndFeelException e) {
-			System.out.println("Unsupported Look and Feel");
-			e.printStackTrace();
-		}
+//		try {UIManager.setLookAndFeel(new NimbusLookAndFeel());} catch (UnsupportedLookAndFeelException e) {
+//			System.out.println("Unsupported Look and Feel");
+//			e.printStackTrace();
+//		}
 		// Sets properties
 		setFullWindow(isFullWindow);
 		setW(w);
@@ -180,12 +180,11 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			mapElement.forEach((key, value)->{
 			//	System.out.println("PARENT : " + key.getName() + " ENFANTS : " + value);
 			});
-	//		fullElement.stream().map(e->e.getName()).forEach(System.out::println);
+			
 			reverseM(fullElement);
 			Racine = rootFile.listFiles();
-			for (File f : Racine) {
-				System.out.println(f + " IS DIRECTORY ? -> " + f.list() );
-			}
+			fullElement.stream().map(e->e.getName() + "  ?  isFile : " + e.isFile() + " AND    isDirectory : " + e.isDirectory()).forEach(System.out::println);
+		//	fullElement.stream().map(e->e.isFile()).forEach(System.out::println);
 			listRoot();
 			JTree secondTree = new JTree(racine);
 //			ImageIcon closedFolderIcon = new ImageIcon("src/Images/Icons/icon-open.png");
@@ -231,10 +230,12 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			// Else we get the children in an array
 			File[] list = file.listFiles();
 			// If list is null, it means that it is a directory, but does not have any children
-			if(list == null) {
+			if(list == null || list.length == 0) {
+				System.out.println("*********************************");
 				// So just has a normal file, we return a DefaultMutableTreeNode wich has the name of the file
-				DefaultMutableTreeNode emptyFolder = new DefaultMutableTreeNode(file.getName(), true);
-				emptyFolder.setAllowsChildren(isFullWindow);;
+				CustomNode emptyFolder = new CustomNode(file.getName(), true);
+				emptyFolder.setAllowsChildren(true);
+				System.out.println("EmptyFolder : " + emptyFolder.isLeaf());
 				return emptyFolder;
 			}
 			// For each file in the list, so each child of the file passed as param (if it has any)
