@@ -89,10 +89,10 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	// Constructor
 	public Window(boolean isFullWindow, int w, int h, Color backColor, boolean isUnDecorated, String closeOperation) {
 		//   -----   Try to apply Look and Feel   -----
-//		try {UIManager.setLookAndFeel(new NimbusLookAndFeel());} catch (UnsupportedLookAndFeelException e) {
-//			System.out.println("Unsupported Look and Feel");
-//			e.printStackTrace();
-//		}
+		try {UIManager.setLookAndFeel(new NimbusLookAndFeel());} catch (UnsupportedLookAndFeelException e) {
+			System.out.println("Unsupported Look and Feel");
+			e.printStackTrace();
+		}
 		// Sets properties
 		setFullWindow(isFullWindow);
 		setW(w);
