@@ -23,11 +23,14 @@ import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 
 // Class
-public class Window extends JFrame implements ActionListener, WindowListener, ProcessFile{
+public class Window extends JFrame implements ActionListener, WindowListener, ProcessFile, TreeSelectionListener{
 	// Properties
 	private static final long serialVersionUID = 1L;
 	private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();   //  Get screen size as Dimension object.
@@ -84,6 +87,8 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 	HashMap<File, ArrayList<File>> parentFileMap = new HashMap<>();
 	// The root node that will be used to create the JTree
 	private DefaultMutableTreeNode racine;
+	
+	public JTree secondTree;
 	
 	
 	// Constructor
@@ -186,7 +191,11 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			fullElement.stream().map(e->e.getName() + "  ?  isFile : " + e.isFile() + " AND    isDirectory : " + e.isDirectory()).forEach(System.out::println);
 		//	fullElement.stream().map(e->e.isFile()).forEach(System.out::println);
 			listRoot();
-			JTree secondTree = new JTree(racine);
+			
+			secondTree = new JTree(racine);
+			
+			secondTree.addTreeSelectionListener(this::valueChanged);
+			
 //			ImageIcon closedFolderIcon = new ImageIcon("src/Images/Icons/icon-open.png");
 //			DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
 //			renderer.setClosedIcon(closedFolderIcon);
@@ -1686,6 +1695,36 @@ public class Window extends JFrame implements ActionListener, WindowListener, Pr
 			}
 		orderedListFiles.stream().map(element -> element.getParentFile().getName() + " -> " + element.getName()).forEach(System.out::println);
 	}
+
+//
+//	private void treeSelectElement(TreeSelectionEvent e) {
+//		secondTree.addTreeSelectionListener(this::valueChanged);
+//	}
+	
+
+		@Override
+		public void valueChanged(TreeSelectionEvent e) {
+			if(secondTree.getLastSelectedPathComponent() != null) {
+				System.out.println(secondTree.getLastSelectedPathComponent().toString());
+				System.out.println(getAbsolutePath(e.getPath()));
+			}
+		}
+		
+		private String getAbsolutePath(TreePath treePath) {
+			String str = "";
+			// We scan the content of the TreePath object
+			for (Object name : treePath.getPath()) {
+				// If the object has a name, we add it to the path
+				if (name.toString() != null) {
+					str += name.toString();
+				}
+				return str;
+			}
+			return str;
+		}
+
+
+	
 }
 
 
