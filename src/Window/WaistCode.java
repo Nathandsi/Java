@@ -1,5 +1,8 @@
 package Window;
 
+import java.io.File;
+import java.util.ArrayList;
+
 public class WaistCode {
 	  
 	 /*
@@ -478,6 +481,41 @@ public class WaistCode {
 	 *  
 	 *  
 	 */
+	
+	
+	/*
+	 * 
+	 * 	// Give a file and a list of files, get the children of the file, from the list of files, in an ArrayList
+	public ArrayList<File> getChildrenFromList(File parent, ArrayList<File> listFiles) {
+		ArrayList<File> children = new ArrayList<File>();
+		for (File f : listFiles) {
+			if (f.getParentFile().getName().equals(parent.getName())) {
+				children.add(f);
+			}
+		}
+		return children;
+	}
+	
+	 */
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 /*
 	
